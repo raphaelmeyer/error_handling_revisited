@@ -1,0 +1,12 @@
+#!/bin/bash
+
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+cd "${script_dir}"
+
+xfce4-terminal \
+  --fullscreen \
+  --hide-menubar --hide-scrollbar \
+  --font="Fira Code Bold 26" \
+  --color-bg=white --color-text=black \
+  -e "patat slides.md"
+
