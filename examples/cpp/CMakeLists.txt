@@ -1,6 +1,15 @@
 cmake_minimum_required(VERSION 3.14)
 
-add_executable(example1 example1.cc)
+add_library(settings INTERFACE)
+target_compile_features(settings INTERFACE cxx_std_17)
+target_compile_options(settings INTERFACE "-Wall" "-Werror")
 
-target_compile_features(example1 PRIVATE cxx_std_17)
+function(add_example NAME)
+  set(SOURCE "${NAME}.cc")
+  add_executable(${NAME} ${SOURCE})
+  target_link_libraries(${NAME} PRIVATE settings)
+endfunction(add_example)
 
+add_example(example1)
+add_example(example2)
+add_example(example3)
