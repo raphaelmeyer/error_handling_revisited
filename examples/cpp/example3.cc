@@ -15,6 +15,12 @@ public:
 class Table {
 public:
   bool home() {
+    if(not tool.home(Homing::NegativeLimit)) {
+      return false;
+    }
+    if(not tool.move(Position::Park)) {
+      return false;
+    }
     if(not x_axis.home(Homing::NegativeLimit)) {
       return false;
     }
@@ -31,6 +37,7 @@ public:
   }
 
 private:
+  Motor tool;
   Motor x_axis;
   Motor y_axis;
 };

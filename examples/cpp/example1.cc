@@ -13,6 +13,8 @@ public:
 class Table {
 public:
   void home() {
+    tool.home(Homing::NegativeLimit);
+    tool.move(Position::Park);
     x_axis.home(Homing::NegativeLimit);
     x_axis.move(Position::Park);
     y_axis.home(Homing::NegativeLimit);
@@ -20,6 +22,7 @@ public:
   }
 
 private:
+  Motor tool;
   Motor x_axis;
   Motor y_axis;
 };
