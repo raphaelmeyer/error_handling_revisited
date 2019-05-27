@@ -1,0 +1,4 @@
+#!/bin/bash
+
+ghc -dynamic --make example.hs
+
