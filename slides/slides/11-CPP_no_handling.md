@@ -2,8 +2,8 @@
 class WateringSystem {
 public:
   Volume water() {
-    auto const moisture = moisture_sensor.moisture();
-    auto const temperature = thermo_sensor.temperature();
+    auto const moisture = moisture_sensor.read();
+    auto const temperature = thermo_sensor.read();
 
     auto const amount =
       calculate_amount(moisture, temperature);
