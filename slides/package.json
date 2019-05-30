@@ -1,15 +1,17 @@
 {
-  "name": "slides",
+  "name": "sandbox",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "prez --watch --serve --no-open-browser",
-    "prez": "prez"
+    "start": "revealer --start",
+    "build": "revealer --build build"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "prez": "^4.7.0"
+    "highlight.js": "^9.15.8",
+    "reveal.js": "^3.8.0",
+    "revealer": "^2.1.6"
   }
 }

@@ -1,0 +1,72 @@
+<html>
+<head>
+
+<meta charset="utf-8">
+<title>Error Handling Revisited</title>
+
+<link rel="stylesheet" href="css/reveal.css">
+<link rel="stylesheet" href="css/theme/white.css">
+
+<!--link rel="stylesheet" href="lib/css/monokai.css"-->
+<link rel="stylesheet" href="css/github.css">
+
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<section data-markdown>
+<script type="text/template">
+
+# Error Handling Revisited
+
+</script>
+</section>
+
+<section>
+<pre class="cpp"><code class="stretch">
+class WateringSystem {
+
+public:
+
+  Volume water() {
+
+    auto const moisture = moisture_sensor.read();
+    auto const temperature = thermo_sensor.read();
+
+    auto const amount =
+      calculate_amount(moisture, temperature);
+
+    pump.pump(amount);
+
+    return amount;
+  }
+
+  // ...
+}
+</code></pre>
+</section>
+
+</div>
+</div>
+<script src="js/reveal.js"></script>
+<script>
+  Reveal.initialize({
+    dependencies: [
+      // Interpret Markdown in <section> elements
+      { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+
+      // Syntax highlight for <code> elements
+      { src: 'plugin/highlight/highlight.js', async: true },
+
+      // Zoom in and out with Alt+click
+      { src: 'plugin/zoom-js/zoom.js', async: true },
+
+      // Speaker notes
+      { src: 'plugin/notes/notes.js', async: true },
+    ]
+  });
+</script>
+</body>
+</html>
