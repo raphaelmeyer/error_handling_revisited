@@ -4,14 +4,14 @@ class Temperature {};
 
 class ThermoSensor {
 public:
-  Temperature temperature() {
+  Temperature read() {
     return {};
   }
 };
 
 class MoistureSensor {
 public:
-  Moisture moisture() {
+  Moisture read() {
     return {};
   }
 };
@@ -25,8 +25,8 @@ public:
 class WateringSystem {
 public:
   Volume water() {
-    auto const moisture = moisture_sensor.moisture();
-    auto const temperature = thermo_sensor.temperature();
+    auto const moisture = moisture_sensor.read();
+    auto const temperature = thermo_sensor.read();
     auto const amount = calculate_amount(moisture, temperature);
     pump.pump(amount);
     return amount;

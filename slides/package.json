@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "prez --watch --serve",
+    "start": "prez --watch --serve --no-open-browser",
     "prez": "prez"
   },
   "author": "",
