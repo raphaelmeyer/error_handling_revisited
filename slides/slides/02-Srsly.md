@@ -1,5 +1,3 @@
-## Error Handling
-
-# ?
+# Error ?
 
 well, not quite

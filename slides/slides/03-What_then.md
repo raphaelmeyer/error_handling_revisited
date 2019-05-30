@@ -1,9 +1,9 @@
-## Error ?
+## Exception
 
-## Exception ?
+## Fault
 
-## Fault ?
+## Anomaly
 
-## Anomaly ?
+# ?
 
-well, maybe ...
+maybe ...
