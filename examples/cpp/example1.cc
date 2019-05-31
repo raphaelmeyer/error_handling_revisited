@@ -1,33 +1,43 @@
-enum class Homing { NegativeLimit };
+class Volume {};
+class Moisture {};
+class Temperature {};
 
-enum class Position { Park };
-
-class Motor {
+class ThermoSensor {
 public:
-  void home(Homing) {
-  }
-  void move(Position) {
-  }
+  Temperature read() { return {}; }
 };
 
-class Table {
+class MoistureSensor {
 public:
-  void home() {
-    tool.home(Homing::NegativeLimit);
-    tool.move(Position::Park);
-    x_axis.home(Homing::NegativeLimit);
-    x_axis.move(Position::Park);
-    y_axis.home(Homing::NegativeLimit);
-    y_axis.move(Position::Park);
+  Moisture read() { return {}; }
+};
+
+class Pump {
+public:
+  void pump(Volume amount) {}
+};
+
+class WateringSystem {
+public:
+  Volume water() {
+    auto const moisture = moisture_sensor.read();
+    auto const temperature = thermo_sensor.read();
+    auto const amount = calculate_amount(moisture, temperature);
+    pump.pump(amount);
+    return amount;
   }
 
 private:
-  Motor tool;
-  Motor x_axis;
-  Motor y_axis;
+  Volume calculate_amount(Moisture moisture, Temperature temperature) {
+    return {};
+  }
+
+  MoistureSensor moisture_sensor;
+  ThermoSensor thermo_sensor;
+  Pump pump;
 };
 
 int main() {
-  Table table;
-  table.home();
+  WateringSystem system;
+  system.water();
 }

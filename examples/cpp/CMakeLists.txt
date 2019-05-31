@@ -14,5 +14,3 @@ add_example(example1)
 add_example(example2)
 add_example(example3)
 add_example(example4)
-
-add_example(alt)

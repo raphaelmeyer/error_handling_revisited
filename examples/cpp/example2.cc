@@ -1,30 +1,32 @@
-enum class Homing { NegativeLimit };
+class Volume {};
+class Moisture {};
+class Temperature {};
 
-enum class Position { Park };
-
-class Motor {
+class ThermoSensor {
 public:
-  bool home(Homing) {
-    return true;
-  }
-  bool move(Position) {
-    return true;
-  }
+  bool read(Temperature &) { return true; }
 };
 
-class Table {
+class MoistureSensor {
 public:
-  bool home() {
-    if(tool.home(Homing::NegativeLimit)) {
-      if(tool.move(Position::Park)) {
-        if(x_axis.home(Homing::NegativeLimit)) {
-          if(x_axis.move(Position::Park)) {
-            if(y_axis.home(Homing::NegativeLimit)) {
-              if(y_axis.move(Position::Park)) {
-                return true;
-              }
-            }
-          }
+  bool read(Moisture &) { return true; }
+};
+
+class Pump {
+public:
+  bool pump(Volume amount) { return true; }
+};
+
+class WateringSystem {
+public:
+  bool water(Volume amount) {
+    Moisture moisture;
+    if (moisture_sensor.read(moisture)) {
+      Temperature temperature;
+      if (thermo_sensor.read(temperature)) {
+        amount = calculate_amount(moisture, temperature);
+        if (pump.pump(amount)) {
+          return true;
         }
       }
     }
@@ -32,12 +34,17 @@ public:
   }
 
 private:
-  Motor tool;
-  Motor x_axis;
-  Motor y_axis;
+  Volume calculate_amount(Moisture moisture, Temperature temperature) {
+    return {};
+  }
+
+  MoistureSensor moisture_sensor;
+  ThermoSensor thermo_sensor;
+  Pump pump;
 };
 
 int main() {
-  Table table;
-  table.home();
+  WateringSystem system;
+  Volume amount;
+  system.water(amount);
 }
