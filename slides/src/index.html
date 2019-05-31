@@ -190,6 +190,92 @@ water :: Maybe Volume
 water = do
   -- ...
 ```
+
+---
+
+## ... and a few _small_ details
+
+### a nifty type system   <!-- .element class="fragment" -->
+
+### lazy evaluation       <!-- .element class="fragment" -->
+
+### ...                   <!-- .element class="fragment" -->
+
+---
+
+# `Maybe`
+
+---
+
+### similar to
+* C++ `std::optional<T>`
+* Java `Optional<T>`
+* ...
+
+---
+
+```haskell
+data Maybe a = Nothing | Just a
+```
+
+---
+
+```haskell
+half :: Int -> Int
+half a = div a 2
+```
+
+```shell
+ghci> half 8
+4
+
+ghci> half 7
+3
+
+ghci> half ( half ( half 16 ) )
+2
+```
+
+---
+
+```haskell
+half :: Int -> Maybe Int
+half a
+  | even a = Just (div a 2)
+  | otherwise = Nothing
+```
+
+```shell
+ghci> half 8
+Just 4
+
+ghci> half 7
+Nothing
+```
+
+---
+
+# ?
+
+---
+
+```shell
+ghci> ( ( half 16 ) >>= half ) >>= half
+Just 2
+
+ghci> ( ( half 12 ) >>= half ) >>= half
+Nothing
+```
+
+---
+
+---
+
+```haskell
+(>>=) :: (Monad m) => m a -> (a -> m b) -> m b
+```
+
+
 </script>
 </section>
 
