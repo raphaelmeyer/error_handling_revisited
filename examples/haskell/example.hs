@@ -14,8 +14,8 @@ calculateAmount _ _ = Just (Volume 123)
 pump :: Volume -> Maybe ()
 pump _ = Just ()
 
-water_plant :: Maybe Volume
-water_plant = do
+water :: Maybe Volume
+water = do
   moisture <- readMoisture
   temperature <- readTemperature
   amount <- calculateAmount moisture temperature
@@ -23,5 +23,5 @@ water_plant = do
   return amount
 
 main = do
-  let amount = water_plant
+  let amount = water
   maybe (return ()) (putStrLn . show) amount

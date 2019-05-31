@@ -68,6 +68,7 @@ public:
 
     return amount;
   }
+
   // ...
 }
 </code></pre>
@@ -129,10 +130,11 @@ bool water(Volume amount) {
 <pre class="cpp"><code class="stretch">
 Volume water() {
   try {
-
     auto const moisture = moisture_sensor.read();
     auto const temperature = thermo_sensor.read();
-    auto const amount = calculate_amount(moisture, temperature);
+    auto const amount =
+      calculate_amount(moisture, temperature);
+
     pump.pump(amount);
     return amount;
 
@@ -144,6 +146,53 @@ Volume water() {
 }
 </code></pre>
 </section>
+
+<section data-markdown data-separator="^\n---\n$">
+<script type="text/template">
+
+# Once upon a Time ...
+
+---
+
+![LearnYou](images/lyahfgg.png)
+
+</script>
+</section>
+
+<section>
+<pre class="haskell"><code class="stretch">
+water_plant :: Maybe Volume
+water_plant = do
+  moisture <- readMoisture
+  temperature <- readTemperature
+  amount <- calculateAmount moisture temperature
+  pump amount
+  return amount
+</code></pre>
+<h3 class="fragment">But, what if ... ?</h3>
+<p class="fragment">Already taken care of !</p>
+</section>
+
+<section data-markdown data-separator="^\n---\n$">
+<script type="text/template">
+# How ?
+
+## `Maybe`                    <!-- .element class="fragment" data-fragment-index="1" -->
+
+Something could go wrong ...  <!-- .element class="fragment" data-fragment-index="1" -->
+
+## `do`                       <!-- .element class="fragment" data-fragment-index="2" -->
+
+... but I'll take care of it. <!-- .element class="fragment" data-fragment-index="2" -->
+
+```haskell
+water :: Maybe Volume
+water = do
+  -- ...
+```
+</script>
+</section>
+
 
 
 
