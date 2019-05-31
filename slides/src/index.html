@@ -368,6 +368,34 @@ data Either a b = Left a | Right b
 * `Right` is a value
 * `Left` is an error
 
+</script>
+</section>
+
+<section>
+<pre class="haskell"><code data-trim>
+
+readEither :: Read a => String -> Either String a
+
+</code></pre>
+<pre class="shell fragment"><code data-trim>
+
+ghci> readEither "1234" :: Either String Int
+Right 1234
+
+</code></pre>
+<pre class="shell fragment"><code data-trim>
+
+ghci> readEither "hello" :: Either String Int
+Left "Prelude.read: no parse"
+
+</code></pre>
+</section>
+
+<section data-markdown data-separator="^\n---\n$">
+<script type="text/template">
+
+# Rust anyone ?
+
 ---
 
 ```rust
@@ -377,15 +405,16 @@ enum Result<T, E> {
 }
 ```
 
-Type `Result<T, E>` in Rust
-is kind of a
-specialization of
-`Either`.
+## `Result<T, E>`
+is kind of a specialization of
+## `Either`
+
+---
+
+# Back to C++
 
 </script>
 </section>
-
-
 
 
 </div>
