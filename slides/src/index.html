@@ -15,10 +15,40 @@
 <div class="reveal">
 <div class="slides">
 
-<section data-markdown>
+<section data-markdown data-separator="^\n---\n$">
 <script type="text/template">
 
 # Error Handling Revisited
+
+---
+
+# Error ?
+
+well, not quite <!-- .element: class="fragment" data-fragment-index="1" -->
+
+---
+
+## Exception
+
+## Fault      <!-- .element: class="fragment" -->
+
+## Anomaly    <!-- .element: class="fragment" -->
+
+# ?           <!-- .element: class="fragment" -->
+
+maybe ...     <!-- .element: class="fragment" -->
+
+</script>
+</section>
+
+<section data-markdown data-separator="^\n---\n$">
+<script type="text/template">
+
+# Example
+
+---
+
+    [Plant Watering System Picture]
 
 </script>
 </section>
@@ -26,14 +56,11 @@
 <section>
 <pre class="cpp"><code class="stretch">
 class WateringSystem {
-
 public:
 
   Volume water() {
-
     auto const moisture = moisture_sensor.read();
     auto const temperature = thermo_sensor.read();
-
     auto const amount =
       calculate_amount(moisture, temperature);
 
@@ -41,11 +68,84 @@ public:
 
     return amount;
   }
-
   // ...
 }
 </code></pre>
 </section>
+
+<section data-markdown>
+<script type="text/template">
+
+# But, what if ... ?
+
+</script>
+</section>
+
+<section>
+<h3>Arrow of Death</h3>
+<pre class="cpp"><code class="stretch">
+bool water(Volume amount) {
+  Moisture moisture;
+  if (moisture_sensor.read(moisture)) {
+    Temperature temperature;
+    if (thermo_sensor.read(temperature)) {
+      amount = calculate_amount(moisture, temperature);
+      if (pump.pump(amount)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+</code></pre>
+</section>
+
+<section>
+<h3>Executus Interruptus</h3>
+<pre class="cpp"><code class="stretch">
+bool water(Volume amount) {
+  Moisture moisture;
+  if (not moisture_sensor.read(moisture)) {
+    return false;
+  }
+
+  Temperature temperature;
+  if (not thermo_sensor.read(temperature)) {
+    return false;
+  }
+
+  amount = calculate_amount(moisture, temperature);
+  if (not pump.pump(amount)) {
+    return false;
+  }
+
+  return true;
+}
+</code></pre>
+</section>
+
+<section>
+<h3>Goto with Benefits</h3>
+<pre class="cpp"><code class="stretch">
+Volume water() {
+  try {
+
+    auto const moisture = moisture_sensor.read();
+    auto const temperature = thermo_sensor.read();
+    auto const amount = calculate_amount(moisture, temperature);
+    pump.pump(amount);
+    return amount;
+
+  } catch (SensorError const &) {
+    throw WateringError{"..."};
+  } catch (PumpError const &) {
+    throw WateringError{"..."};
+  }
+}
+</code></pre>
+</section>
+
+
 
 </div>
 </div>
