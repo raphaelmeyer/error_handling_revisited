@@ -54,7 +54,8 @@ maybe ...     <!-- .element: class="fragment" -->
 </section>
 
 <section>
-<pre class="cpp"><code class="stretch">
+<pre class="cpp"><code class="stretch" data-trim>
+
 class WateringSystem {
 public:
 
@@ -71,6 +72,7 @@ public:
 
   // ...
 }
+
 </code></pre>
 </section>
 
@@ -84,7 +86,8 @@ public:
 
 <section>
 <h3>Arrow of Death</h3>
-<pre class="cpp"><code class="stretch">
+<pre class="cpp"><code class="stretch" data-trim>
+
 bool water(Volume amount) {
   Moisture moisture;
   if (moisture_sensor.read(moisture)) {
@@ -98,12 +101,14 @@ bool water(Volume amount) {
   }
   return false;
 }
+
 </code></pre>
 </section>
 
 <section>
 <h3>Executus Interruptus</h3>
-<pre class="cpp"><code class="stretch">
+<pre class="cpp"><code class="stretch" data-trim>
+
 bool water(Volume amount) {
   Moisture moisture;
   if (not moisture_sensor.read(moisture)) {
@@ -122,12 +127,14 @@ bool water(Volume amount) {
 
   return true;
 }
+
 </code></pre>
 </section>
 
 <section>
 <h3>Goto with Benefits</h3>
-<pre class="cpp"><code class="stretch">
+<pre class="cpp"><code class="stretch" data-trim>
+
 Volume water() {
   try {
     auto const moisture = moisture_sensor.read();
@@ -144,6 +151,7 @@ Volume water() {
     throw WateringError{"..."};
   }
 }
+
 </code></pre>
 </section>
 
@@ -160,7 +168,7 @@ Volume water() {
 </section>
 
 <section>
-<pre class="haskell"><code class="stretch">
+<pre class="haskell"><code class="stretch" data-trim>
 water_plant :: Maybe Volume
 water_plant = do
   moisture <- readMoisture
@@ -168,6 +176,7 @@ water_plant = do
   amount <- calculateAmount moisture temperature
   pump amount
   return amount
+
 </code></pre>
 <h3 class="fragment">But, what if ... ?</h3>
 <p class="fragment">Already taken care of !</p>
@@ -199,6 +208,8 @@ water = do
 
 ### lazy evaluation       <!-- .element class="fragment" -->
 
+### pattern matching      <!-- .element class="fragment" -->
+
 ### ...                   <!-- .element class="fragment" -->
 
 ---
@@ -218,56 +229,69 @@ water = do
 data Maybe a = Nothing | Just a
 ```
 
----
+</script>
+</section>
 
-```haskell
+<section>
+<pre class="haskell"><code data-trim>
+
 half :: Int -> Int
 half a = div a 2
-```
 
-```shell
+</code></pre>
+<pre class="shell fragment"><code data-trim>
+
 ghci> half 8
 4
 
+</code></pre>
+<pre class="shell fragment"><code data-trim>
+
 ghci> half 7
 3
+</code></pre>
+<pre class="shell fragment"><code data-trim>
 
 ghci> half ( half ( half 16 ) )
 2
-```
 
----
+</code></pre>
+</section>
 
-```haskell
+<section>
+<pre class="haskell"><code data-trim>
+
 half :: Int -> Maybe Int
 half a
   | even a = Just (div a 2)
   | otherwise = Nothing
-```
 
-```shell
+</code></pre>
+<pre class="shell fragment"><code data-trim>
+
 ghci> half 8
 Just 4
 
+</code></pre>
+<pre class="shell fragment"><code data-trim>
+
 ghci> half 7
 Nothing
-```
 
----
+</code></pre>
+<pre class="shell fragment"><code data-trim>
+
+ghci> half ( half ( half 16 ) )
+error: Couldn't match expected
+       type ‘Int’ with actual type ‘Maybe Int’
+
+</code></pre>
+</section>
+
+<section data-markdown data-separator="^\n---\n$">
+<script type="text/template">
 
 # ?
-
----
-
-```shell
-ghci> ( ( half 16 ) >>= half ) >>= half
-Just 2
-
-ghci> ( ( half 12 ) >>= half ) >>= half
-Nothing
-```
-
----
 
 ---
 
@@ -275,6 +299,88 @@ Nothing
 (>>=) :: (Monad m) => m a -> (a -> m b) -> m b
 ```
 
+# !
+
+</script>
+</section>
+
+<section>
+<pre class="haskell"><code data-trim>
+
+(>>=) :: (Monad m) => m a -> (a -> m b) -> m b
+
+</code></pre>
+<pre class="shell fragment"><code data-trim>
+
+ghci> ( ( half 16 ) >>= half ) >>= half
+Just 2
+
+</code></pre>
+<pre class="shell fragment"><code data-trim>
+
+ghci> ( ( half 12 ) >>= half ) >>= half
+Nothing
+
+</code></pre>
+</section>
+
+<section data-markdown data-separator="^\n---\n$">
+<script type="text/template">
+
+# `do` notation
+
+```haskell
+( ( half 16 ) >>= half ) >>= half
+```
+
+# =
+
+```haskell
+do
+  a <- half 16
+  b <- half a
+  half b
+```
+
+---
+
+`>>=` is implemented by
+
+* Mabye
+* Either
+* IO
+* []
+* ... any other `Monad`
+
+---
+
+# `Either`
+
+---
+
+```haskell
+data Either a b = Left a | Right b
+```
+
+---
+
+### Convention
+* `Right` is a value
+* `Left` is an error
+
+---
+
+```rust
+enum Result<T, E> {
+   Ok(T),
+   Err(E),
+}
+```
+
+Type `Result<T, E>` in Rust
+is kind of a
+specialization of
+`Either`.
 
 </script>
 </section>
