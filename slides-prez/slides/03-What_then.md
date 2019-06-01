@@ -1,9 +1,0 @@
-## Exception
-
-## Fault
-
-## Anomaly
-
-# ?
-
-maybe ...
