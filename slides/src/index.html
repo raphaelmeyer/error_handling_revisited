@@ -416,6 +416,30 @@ is kind of a specialization of
 </script>
 </section>
 
+<section>
+<pre><code class="cpp stretch" data-trim data-noescape>
+
+std::optional&lt;Volume&gt; water() {
+  auto const moisture = moisture_sensor.read();
+  if (not moisture) {
+    return std::nullopt;
+  }
+  auto const temperature = thermo_sensor.read();
+  if (not temperature) {
+    return std::nullopt;
+  }
+  auto const amount =
+    calculate_amount(moisture.value(), temperature.value());
+
+  if (not pump.pump(amount)) {
+    return std::nullopt;
+  }
+  return amount;
+}
+
+</code></pre>
+</section>
+
 <section data-markdown data-background-image="images/p1140244.jpg" data-background-opacity="0.7">
 <script type="text/template">
 
