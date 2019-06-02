@@ -405,13 +405,17 @@ enum Result<T, E> {
 }
 ```
 
-## `Result<T, E>`
+### `Result<T, E>`
 is kind of a specialization of
-## `Either`
+### `Either`
 
 ---
 
 # Back to C++
+
+---
+
+# `std::optional` ?
 
 </script>
 </section>
@@ -439,6 +443,57 @@ std::optional&lt;Volume&gt; water() {
 
 </code></pre>
 </section>
+
+<section data-markdown>
+<script type="text/template">
+
+# `std::variant` ?
+
+</script>
+</section>
+
+<section>
+<pre><code class="cpp stretch" data-trim data-noescape>
+
+std::variant&lt;Error, Volume&gt; water() {
+  auto const moisture = moisture_sensor.read();
+  auto error = std::get_if&lt;Error&gt;(&moisture);
+  if(error) { return *error; }
+
+  auto const temperature = thermo_sensor.read();
+  error = std::get_if&lt;Error&gt;(&temperature);
+  if(error) { return *error; }
+
+  auto const amount = calculate_amount(
+    std::get&lt;Moisture&gt;(moisture),
+    std::get&lt;Temperature&gt;(temperature));
+
+  auto const pump_error = pump.pump(amount);
+  if(pump_error) { return pump_error.value(); }
+
+  return amount;
+}
+
+</code></pre>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+
+# `std::visit` ?
+
+</script>
+</section>
+
+<section data-markdown>
+<script type="text/template">
+
+# DIY `either` ?
+
+</script>
+</section>
+
+
 
 <section data-markdown data-background-image="images/p1140244.jpg" data-background-opacity="0.7">
 <script type="text/template">
