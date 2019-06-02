@@ -477,23 +477,159 @@ std::variant&lt;Error, Volume&gt; water() {
 </code></pre>
 </section>
 
-<section data-markdown>
+<section data-markdown data-separator="^\n---\n$">
 <script type="text/template">
 
 # `std::visit` ?
 
+---
+
+### A few helpers
+
+```cpp
+template <class... Ts> struct overloaded : Ts... {
+  using Ts::operator()...;
+};
+
+template <class... Ts> overloaded(Ts...)->overloaded<Ts...>;
+```
+
+```cpp
+template <typename T>
+using Result = std::variant<Error, T>;
+
+using Amount = Result<Volume>;
+```
+
+(to increase readability)
+
 </script>
 </section>
 
-<section data-markdown>
+<section>
+<pre><code class="cpp stretch" data-trim data-noescape>
+
+Amount water() {
+  auto const moisture = moisture_sensor.read();
+  return std::visit(overloaded{
+    [](Error const & e) { return Amount{e}; },
+    [&](Moisture const & moisture) {
+      auto const temperature = thermo_sensor.read();
+      return std::visit(overloaded{
+        [](Error const & e) { return Amount{e}; },
+        [&](Temperature const &temperature) {
+          auto const amount =
+            calculate_amount(moisture, temperature);
+            auto const pump_error = pump.pump(amount);
+            if (pump_error) {
+              return Amount{pump_error.value()};
+            }
+            return Amount{amount};
+        }}, temperature);
+    }}, moisture);
+}
+
+</code></pre>
+</section>
+
+<section data-markdown data-separator="^\n---\n$">
 <script type="text/template">
+
+# 🤔
+
+---
+
+It's either *my incompetence* or the *C++ language* ...
+
+---
 
 # DIY `either` ?
 
+---
+
+```cpp
+template<typename Left, typename Right>
+class either {
+public:
+  Left const & left() const {
+    return std::get<left_t>(_value).value;
+  }
+  bool is_left() { /* ... */ }
+  // ...
+
+private:
+  std::variant<left_t, right_t> _value;
+  // ...
+};
+```
+
+---
+
+```cpp
+template<typename In, typename Left, typename Func>
+auto operator>>(either<Left, In> const & in, Func f)
+  -> decltype(f(in.right())) {
+
+  using Result =
+    typename decltype(f(in.right()))::right_type;
+
+  if(in.is_right()) {
+    return f(in.right());
+  }
+
+  return func::make_left<Left, Result>(in.left());
+}
+```
+
+---
+
+```cpp
+auto const result = make_right<std::string, int>(1)
+
+  >> [](auto const & arg){
+    return make_right<std::string, double>(arg + 0.7);
+  }
+  >> [](auto const & arg){
+    return make_right<std::string, double>(arg + 0.4);
+  }
+  >> [](auto const & arg){
+    return make_right<std::string, int>(arg + 1);
+  };
+
+assert(result.is_right());
+assert(result.right() == 3);
+```
+
+---
+
+# My learings
+
+Either look for a new job as a  <!-- .element class="fragment" -->
+haskell programmer
+
+or                              <!-- .element class="fragment" -->
+
+maybe spend more time learing   <!-- .element class="fragment" -->
+C++ template meta programming
+
+---
+
+# My learnings
+
+---
+
+## Keep your eyes open
+
+... and discover the functional gems  <!-- .element class="fragment" -->
+that inspired your language.
+
+## Learn a functional langague        <!-- .element class="fragment" -->
+
+... so that you're actually capable   <!-- .element class="fragment" -->
+spotting them.
+
 </script>
 </section>
-
-
 
 <section data-markdown data-background-image="images/p1140244.jpg" data-background-opacity="0.7">
 <script type="text/template">

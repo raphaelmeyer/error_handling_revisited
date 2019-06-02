@@ -1,8 +1,8 @@
-#include <variant>
 #include <optional>
+#include <variant>
 
-template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
-template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+template <class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+template <class... Ts> overloaded(Ts...)->overloaded<Ts...>;
 
 class Volume {};
 class Moisture {};
@@ -29,17 +29,23 @@ public:
   std::variant<Error, Volume> water() {
     auto const moisture = moisture_sensor.read();
     auto error = std::get_if<Error>(&moisture);
-    if(error) { return *error; }
+    if (error) {
+      return *error;
+    }
 
     auto const temperature = thermo_sensor.read();
     error = std::get_if<Error>(&temperature);
-    if(error) { return *error; }
+    if (error) {
+      return *error;
+    }
 
-    auto const amount = calculate_amount(
-      std::get<Moisture>(moisture), std::get<Temperature>(temperature));
+    auto const amount = calculate_amount(std::get<Moisture>(moisture),
+                                         std::get<Temperature>(temperature));
 
     auto const pump_error = pump.pump(amount);
-    if(pump_error) { return pump_error.value(); }
+    if (pump_error) {
+      return pump_error.value();
+    }
 
     return amount;
   }
