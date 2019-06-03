@@ -19,7 +19,7 @@ public:
 
 class WateringSystem {
 public:
-  bool water(Volume amount) {
+  bool water(Volume & amount) {
     Moisture moisture;
     if (not moisture_sensor.read(moisture)) {
       return false;

@@ -88,7 +88,7 @@ public:
 <h3>Arrow of Death</h3>
 <pre class="cpp"><code class="stretch" data-trim>
 
-bool water(Volume amount) {
+bool water(Volume & amount) {
   Moisture moisture;
   if (moisture_sensor.read(moisture)) {
     Temperature temperature;
@@ -109,7 +109,7 @@ bool water(Volume amount) {
 <h3>Executus Interruptus</h3>
 <pre class="cpp"><code class="stretch" data-trim>
 
-bool water(Volume amount) {
+bool water(Volume & amount) {
   Moisture moisture;
   if (not moisture_sensor.read(moisture)) {
     return false;
