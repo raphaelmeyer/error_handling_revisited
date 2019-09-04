@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>C++ Error Handling Revisited</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style type="text/css">
+      @font-face{
+        font-family: 'Fira Code';
+        src: url('fonts/Fira_Code/FiraCode-Regular.ttf');
+      }
+
+      @font-face{
+        font-family: 'Ubuntu';
+        src: url('fonts/Ubuntu/Ubuntu-Regular.ttf');
+      }
+
+      @font-face{
+        font-family: 'Ubuntu';
+        src: url('fonts/Ubuntu/Ubuntu-RegularItalic.ttf');
+        font-style: italic;
+      }
+
+      @font-face{
+        font-family: 'Ubuntu';
+        src: url('fonts/Ubuntu/Ubuntu-Bold.ttf');
+        font-weight: bold;
+      }
+
+      @font-face{
+        font-family: 'Ubuntu';
+        src: url('fonts/Ubuntu/Ubuntu-BoldItalic.ttf');
+        font-weight: bold;
+        font-style: italic;
+      }
+
+      body { font-family: 'Ubuntu'; }
+      h1, h2, h3 {
+        font-family: 'Ubuntu';
+        font-weight: bold;
+      }
+      img {
+        max-width: 90%;
+        max-height: 90%;
+        width: auto;
+        height: auto;
+      }
+
+      .remark-code, .remark-inline-code { font-family: 'Fira Code'; }
+
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# C++ Error Handling Revisited
+
+---
+
+class: center, middle
+
+# Error ❓
+
+---
+
+class: center, middle
+
+# Error
+
+# Exception
+
+# Fault
+
+# Anomaly
+
+# ❓
+
+---
+
+class: center, middle
+
+# Example 🌱
+
+---
+
+class: center, middle
+
+![Plant Watering System](src/images/watering.png)
+
+---
+
+class: middle
+
+```cpp
+Moisture MoistureSensor::read() { /* ... */ }
+// ...
+
+class WateringSystem {
+public:
+
+  Volume water() {
+    auto const moisture = moisture_sensor.read();
+    auto const temperature = thermo_sensor.read();
+    auto const amount = calculate_amount(moisture, temperature);
+
+    pump.pump(amount);
+
+    return amount;
+  }
+
+  // ...
+}
+```
+
+---
+
+class: center, middle
+
+# But, what if 💥 ❓
+
+---
+
+class: middle
+
+```cpp
+bool MoistureSensor::read(Moisture & moisture) { /* ... */ }
+// ...
+
+bool water(Volume & amount) {
+  Moisture moisture;
+  if (moisture_sensor.read(moisture)) {
+    Temperature temperature;
+    if (thermo_sensor.read(temperature)) {
+      amount = calculate_amount(moisture, temperature);
+      if (pump.pump(amount)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+```
+
+---
+
+class: middle
+
+```cpp
+bool MoistureSensor::read(Moisture & moisture) { /* ... */ }
+// ...
+
+bool water(Volume & amount) {
+  Moisture moisture;
+  if (not moisture_sensor.read(moisture)) {
+    return false;
+  }
+
+  Temperature temperature;
+  if (not thermo_sensor.read(temperature)) {
+    return false;
+  }
+
+  amount = calculate_amount(moisture, temperature);
+  if (not pump.pump(amount)) {
+    return false;
+  }
+
+  return true;
+}
+```
+
+---
+
+class: middle
+
+```cpp
+Moisture MoistureSensor::read() { /* ... */ }
+// ...
+
+Volume water() {
+  try {
+    auto const moisture = moisture_sensor.read();
+    auto const temperature = thermo_sensor.read();
+    auto const amount =
+      calculate_amount(moisture, temperature);
+
+    pump.pump(amount);
+    return amount;
+
+  } catch (SensorError const &) {
+    throw WateringError{"..."};
+  } catch (PumpError const &) {
+    throw WateringError{"..."};
+  }
+}
+```
+
+---
+
+class: center, middle
+
+# Once upon a Time ...
+
+---
+
+class: center, middle
+
+![Learn You](src/images/lyahfgg.png)
+
+---
+
+class: middle
+
+```haskell
+water_plant :: Maybe Volume
+water_plant = do
+  moisture <- readMoisture
+  temperature <- readTemperature
+  amount <- calculateAmount moisture temperature
+  pump amount
+  return amount
+```
+
+
+---
+
+class: center, middle
+
+# 🤔
+
+
+
+    </textarea>
+    <script src="remark/remark.js" type="text/javascript">
+    </script>
+    <script type="text/javascript">
+      remark.macros.scale = function (percentage) {
+        var url = this;
+        return '<img src="' + url + '" style="width: ' + percentage + '" />';
+      };
+
+      var slideshow = remark.create({
+        ratio: '16:9',
+        slideNumberFormat: '',
+        highlightStyle: 'github'
+      });
+    </script>
+  </body>
+</html>
