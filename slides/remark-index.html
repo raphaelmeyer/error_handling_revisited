@@ -57,13 +57,11 @@ class: center, middle
 # C++ Error Handling Revisited
 
 ---
-
 class: center, middle
 
 # Error ❓
 
 ---
-
 class: center, middle
 
 # Error
@@ -77,7 +75,6 @@ class: center, middle
 # ❓
 
 ---
-
 class: center, middle
 
 # Example 🌱
@@ -89,7 +86,6 @@ class: center, middle
 ![Plant Watering System](src/images/watering.png)
 
 ---
-
 class: middle
 
 ```cpp
@@ -114,13 +110,11 @@ public:
 ```
 
 ---
-
 class: center, middle
 
 # But, what if 💥 ❓
 
 ---
-
 class: middle
 
 ```cpp
@@ -143,7 +137,6 @@ bool water(Volume & amount) {
 ```
 
 ---
-
 class: middle
 
 ```cpp
@@ -171,7 +164,6 @@ bool water(Volume & amount) {
 ```
 
 ---
-
 class: middle
 
 ```cpp
@@ -197,19 +189,16 @@ Volume water() {
 ```
 
 ---
-
 class: center, middle
 
 # Once upon a Time ...
 
 ---
-
 class: center, middle
 
 ![Learn You](src/images/lyahfgg.png)
 
 ---
-
 class: middle
 
 ```haskell
@@ -222,9 +211,91 @@ water_plant = do
   return amount
 ```
 
+---
+class: center, middle
+
+# But, what if 💥 ❓
+
+---
+class: center, middle
+
+# Already taken care of❗
+
+---
+class: center, middle
+
+# 🤔 ❓❗
 
 ---
 
+```haskell
+water :: Maybe Volume
+water = do
+  -- ...
+```
+
+--
+
+# `Maybe`
+
+## .right[Something could go wrong ...]
+
+--
+
+# `do`
+
+## .right[... but I'll take care of it.]
+
+---
+class: center, middle
+
+# ... and a few _small_ details
+
+## a nifty type system
+## lazy evaluation
+## pattern matching
+## ...
+
+---
+class: center, middle
+
+# `Maybe`
+
+---
+class: center, middle
+
+# Similar to `std::optional<T>`
+
+---
+class: middle
+
+```haskell
+data Maybe a = Nothing | Just a
+```
+
+---
+```haskell
+```
+
+--
+
+```shell
+```
+
+--
+
+```shell
+```
+
+--
+
+
+
+
+
+---
+
+---
 class: center, middle
 
 # 🤔
