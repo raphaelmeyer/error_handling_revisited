@@ -36,7 +36,7 @@
       body { font-family: 'Ubuntu'; }
       h1, h2, h3 {
         font-family: 'Ubuntu';
-        font-weight: bold;
+        font-weight: normal;
       }
       img {
         max-width: 90%;
@@ -274,33 +274,124 @@ data Maybe a = Nothing | Just a
 ```
 
 ---
+class: middle
+
 ```haskell
+half :: Int -> Int
+half a = div a 2
 ```
 
 --
 
 ```shell
+ghci> half 8
+4
 ```
 
 --
 
 ```shell
+ghci> half 7
+3
 ```
 
 --
 
-
-
-
+```shell
+ghci> half ( half ( half 16 ) )
+2
+```
 
 ---
+class: middle
+
+```haskell
+half :: Int -> Maybe Int
+half a
+  | even a = Just (div a 2)
+  | otherwise = Nothing
+```
+
+--
+
+```shell
+ghci> half 8
+Just 4
+```
+
+--
+
+```shell
+ghci> half 7
+Nothing
+```
+
+--
+
+```shell
+ghci> half ( half ( half 16 ) )
+error: Couldn't match expected
+       type ‘Int’ with actual type ‘Maybe Int’
+```
 
 ---
 class: center, middle
 
 # 🤔
 
+---
+class: middle
 
+```haskell
+(>>=) :: (Monad m) => m a -> (a -> m b) -> m b
+```
+
+--
+
+```shell
+ghci> half 16 >>= half >>= half
+Just 2
+```
+
+--
+
+```shell
+ghci> half 14 >>= half >>= half
+Nothing
+```
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+class: center, middle
+
+# 🙋
+
+---
+class: middle
+
+.center[![:scale 50%](images/bbv.png)]
+
+# **Raphael Meyer**
+## bbv.ch | raphael.meyer@bbv.ch
 
     </textarea>
     <script src="remark/remark.js" type="text/javascript">
@@ -308,7 +399,7 @@ class: center, middle
     <script type="text/javascript">
       remark.macros.scale = function (percentage) {
         var url = this;
-        return '<img src="' + url + '" style="width: ' + percentage + '" />';
+        return '<img src="' + url + '" style="max-width: ' + percentage + '; max-height: '+ percentage + '; widht: auto; height: auto" />';
       };
 
       var slideshow = remark.create({
