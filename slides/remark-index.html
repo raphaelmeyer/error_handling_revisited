@@ -407,6 +407,33 @@ do
 ```
 
 ---
+
+class: middle
+
+```haskell
+water_plant :: Maybe Volume
+water_plant = do
+  moisture <- readMoisture
+  temperature <- readTemperature
+  amount <- calculateAmount moisture temperature
+  pump amount
+  return amount
+```
+
+---
+class: middle
+
+## `>>=`
+
+is implemented by
+
+* Mabye
+* Either
+* IO
+* []
+* ... any other `Monad`
+
+---
 class: center, middle
 
 # **`Either`** 👈 👉
