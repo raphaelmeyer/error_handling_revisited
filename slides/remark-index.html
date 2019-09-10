@@ -33,11 +33,18 @@
         font-style: italic;
       }
 
-      body { font-family: 'Ubuntu'; }
+      body {
+        font-family: 'Ubuntu';
+      }
       h1, h2, h3 {
         font-family: 'Ubuntu';
         font-weight: normal;
       }
+
+      h1 { font-size: 72px; }
+      h2 { font-size: 48px; }
+      h3 { font-size: 36px; }
+
       img {
         max-width: 90%;
         max-height: 90%;
@@ -45,7 +52,9 @@
         height: auto;
       }
 
-      .remark-code, .remark-inline-code { font-family: 'Fira Code'; }
+      .remark-code, .remark-inline-code {
+        font-family: 'Fira Code';
+      }
 
     </style>
   </head>
@@ -235,7 +244,7 @@ water = do
 
 --
 
-# **`Maybe`**
+## **`Maybe`**
 
 --
 
@@ -243,7 +252,7 @@ water = do
 
 --
 
-# **`do`**
+## **`do`**
 
 --
 
@@ -256,19 +265,19 @@ class: bottom
 
 --
 
-## 🔹 a nifty type system
+### 🔹 a nifty type system
 
 --
 
-## 🔹 lazy evaluation
+### 🔹 lazy evaluation
 
 --
 
-## 🔹 pattern matching
+### 🔹 pattern matching
 
 --
 
-## 🔹 ...
+### 🔹 ...
 
 ---
 class: center, middle
@@ -278,7 +287,9 @@ class: center, middle
 ---
 class: center, middle
 
-# Similar to `std::optional<T>`
+# `Maybe`
+# ≈
+# `std::optional`
 
 ---
 class: middle
@@ -375,9 +386,77 @@ Nothing
 ```
 
 ---
+class: center, middle
 
+# **`do`** notation
 
+---
+class: middle
 
+```haskell
+half 16 >>= half >>= half
+```
+
+# .center[=]
+
+```haskell
+do
+  a <- half 16
+  b <- half a
+  half b
+```
+
+---
+class: center, middle
+
+# **`Either`** 👈 👉
+
+---
+class: middle
+
+```haskell
+data Either a b = Left a | Right b
+```
+
+---
+class: middle
+
+# .right[Convention]
+
+### 🔹 `Right` is a value
+
+### 🔹 `Left` is an error
+
+---
+
+# [...]
+
+---
+class: center, middle
+
+# **Rust** ⚙️
+
+---
+class: middle
+
+```rust
+enum Result<T, E> {
+   Ok(T),
+   Err(E),
+}
+```
+
+--
+
+# .center[≈]
+
+## .center[specialization of]
+
+# .center[`Either`]
+
+---
+
+more Result stuff? usage?
 
 
 
@@ -419,7 +498,8 @@ class: middle
       var slideshow = remark.create({
         ratio: '16:9',
         slideNumberFormat: '',
-        highlightStyle: 'github'
+        highlightStyle: 'github',
+        highlightLanguage: 'cpp'
       });
     </script>
   </body>
