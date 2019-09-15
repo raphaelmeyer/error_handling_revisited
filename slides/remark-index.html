@@ -62,6 +62,18 @@
         font-family: 'Roboto Mono';
       }
 
+      .pull-left {
+        float: left;
+        width: 47%;
+      }
+      .pull-right {
+        float: right;
+        width: 47%;
+      }
+      .pull-right ~ p {
+        clear: both;
+      }
+
     </style>
   </head>
   <body>
@@ -70,6 +82,12 @@
 class: center, middle
 
 # **C++ Error Handling _Revisited_**
+
+# 🔹 🔹 🔹 🔹 🔹
+
+## Raphael Meyer
+
+![:scale 25%](images/bbv.png)
 
 ---
 class: center, middle
@@ -256,8 +274,8 @@ class: center, middle
 ---
 
 ```haskell
-water :: Maybe Volume
-water = do
+water_plant :: Maybe Volume
+water_plant = do
   -- ...
 ```
 
@@ -278,37 +296,30 @@ water = do
 ## .right[... but I'll take care of it.]
 
 ---
-class: bottom
+class: middle
 
 # .right[... and a few _small_ details]
 
 --
 
-### 🔹 a nifty type system
+## 🔹 a nifty type system
 
 --
 
-### 🔹 lazy evaluation
+## 🔹 lazy evaluation
 
 --
 
-### 🔹 pattern matching
+## 🔹 pattern matching
 
 --
 
-### 🔹 ...
+## 🔹 ...
 
 ---
 class: center, middle
 
 # **`Maybe`** 🤷
-
----
-class: center, middle
-
-# `Maybe`
-# ≈
-# `std::optional`
 
 ---
 class: middle
@@ -386,7 +397,7 @@ class: center, middle
 ---
 class: center, middle
 
-# function "bind"
+## function "bind"
 
 # **`>>=`**
 
@@ -395,6 +406,24 @@ class: middle
 
 ```haskell
 (>>=) :: (Monad m) => m a -> (a -> m b) -> m b
+```
+
+--
+
+```haskell
+instance Monad Maybe where
+  (Just x) >>= k = k x
+  Nothing  >>= _ = Nothing
+```
+
+---
+class: middle
+
+```haskell
+half :: Int -> Maybe Int
+half a
+  | even a = Just (div a 2)
+  | otherwise = Nothing
 ```
 
 --
@@ -423,7 +452,7 @@ class: middle
 half 16 >>= half >>= half
 ```
 
-# .center[=]
+# .center[≈]
 
 ```haskell
 do
@@ -453,15 +482,42 @@ water_plant = do
 ---
 class: middle
 
-## `>>=`
+```haskell
+water_plant :: Maybe Volume
+water_plant = do
+  -- ...
+```
 
-is implemented by
+```haskell
+main = do
+  let amount = water_plant
+  maybe (putStrLn "Error") (putStrLn . show) amount
+```
 
-* Mabye
-* Either
-* IO
-* []
-* ... any other `Monad`
+--
+
+```shell
+$ ./water_plant
+Volume 42
+```
+
+--
+
+```shell
+$ ./water_plant
+Error
+```
+
+---
+class: middle
+
+## .center[**`>>=`** is implemented by]
+
+### 🔹 `Mabye`
+### 🔹 `Either`
+### 🔹 `IO`
+### 🔹 `[]`
+### 🔹 ...
 
 ---
 class: center, middle
@@ -478,13 +534,13 @@ data Either a b = Left a | Right b
 ---
 class: middle
 
-# .right[Convention]
+# .center[Convention]
 
-### 🔹 `Right` is a value
-
-### 🔹 `Left` is an error
+## 🔹 `Right` is a _value_
+## 🔹 `Left` is an _error_
 
 ---
+class: middle
 
 ```haskell
 readMoisture :: Either Error Moisture
@@ -492,8 +548,8 @@ readMoisture :: Either Error Moisture
 ```
 
 ```haskell
-water :: Either Error Volume
-water = do
+water_plant :: Either Error Volume
+water_plant = do
   moisture <- readMoisture
   temperature <- readTemperature
   amount <- calculateAmount moisture temperature
@@ -501,16 +557,18 @@ water = do
   return amount
 ```
 
-# [...]
+--
 
 ```shell
-$> ./water
+$ ./water_plant
 Volume 42
 ```
 
+--
+
 ```shell
-$> ./water
-! Error "Temperature sensor offline"
+$ ./water_plant
+Error "Temperature sensor offline"
 ```
 
 ---
@@ -546,6 +604,13 @@ more Result stuff? usage?
 class: center, middle
 
 # **`std::optional`**
+
+---
+class: center, middle
+
+# `Maybe`
+# ≈
+# `std::optional`
 
 ---
 class: middle
@@ -768,7 +833,7 @@ class: middle
 .center[![:scale 50%](images/bbv.png)]
 
 # **Raphael Meyer**
-## bbv.ch | raphael.meyer@bbv.ch
+## .right[raphael.meyer@bbv.ch]
 
     </textarea>
     <script src="remark/remark.js" type="text/javascript">
