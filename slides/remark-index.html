@@ -99,7 +99,9 @@ class: middle
 ```cpp
 Moisture MoistureSensor::read() { /* ... */ }
 // ...
+```
 
+```cpp
 class WateringSystem {
 public:
 
@@ -128,7 +130,9 @@ class: middle
 ```cpp
 bool MoistureSensor::read(Moisture & moisture) { /* ... */ }
 // ...
+```
 
+```cpp
 bool water(Volume & amount) {
   Moisture moisture;
   if (moisture_sensor.read(moisture)) {
@@ -150,7 +154,9 @@ class: middle
 ```cpp
 bool MoistureSensor::read(Moisture & moisture) { /* ... */ }
 // ...
+```
 
+```cpp
 bool water(Volume & amount) {
   Moisture moisture;
   if (not moisture_sensor.read(moisture)) {
@@ -177,7 +183,9 @@ class: middle
 ```cpp
 Moisture MoistureSensor::read() { /* ... */ }
 // ...
+```
 
+```cpp
 Volume water() {
   try {
     auto const moisture = moisture_sensor.read();
@@ -208,6 +216,11 @@ class: center, middle
 
 ---
 class: middle
+
+```haskell
+readMoisture :: Maybe Moisture
+-- ...
+```
 
 ```haskell
 water_plant :: Maybe Volume
@@ -365,6 +378,13 @@ class: center, middle
 # 🤔
 
 ---
+class: center, middle
+
+# function "bind"
+
+# **`>>=`**
+
+---
 class: middle
 
 ```haskell
@@ -407,8 +427,12 @@ do
 ```
 
 ---
-
 class: middle
+
+```haskell
+readMoisture :: Maybe Moisture
+-- ...
+```
 
 ```haskell
 water_plant :: Maybe Volume
@@ -455,6 +479,21 @@ class: middle
 ### 🔹 `Left` is an error
 
 ---
+
+```haskell
+readMoisture :: Either Error Moisture
+-- ...
+```
+
+```haskell
+water :: Either Error Volume
+water = do
+  moisture <- readMoisture
+  temperature <- readTemperature
+  amount <- calculateAmount moisture temperature
+  pump amount
+  return amount
+```
 
 # [...]
 
