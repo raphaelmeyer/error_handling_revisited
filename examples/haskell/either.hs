@@ -17,14 +17,12 @@ calculateAmount _ _ = Right (Volume 123)
 pump :: Volume -> Either Error ()
 pump _ = Right ()
 
-water_plant :: Either Error Volume
-water_plant = do
+waterPlant :: Either Error Volume
+waterPlant = do
   moisture <- readMoisture
   temperature <- readTemperature
   amount <- calculateAmount moisture temperature
   pump amount
   return amount
 
-main = do
-  let amount = water_plant
-  either (putStrLn . ("! " ++) . show) (putStrLn . show) amount
+main = putStrLn . either show show $ waterPlant

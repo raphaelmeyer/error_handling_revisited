@@ -57,8 +57,8 @@
       h3 { font-size: 36px; }
 
       img {
-        max-width: 90%;
-        max-height: 90%;
+        max-width: 80%;
+        max-height: 80%;
         width: auto;
         height: auto;
       }
@@ -67,16 +67,17 @@
         font-family: 'Roboto Mono';
       }
 
-      .pull-left {
-        float: left;
-        width: 47%;
-      }
-      .pull-right {
-        float: right;
-        width: 47%;
-      }
-      .pull-right ~ p {
-        clear: both;
+      .large { font-size: 150% }
+      .huge { font-size: 200% }
+
+      @media print {
+        .remark-slide-scaler {
+          left: 2vw !important;
+          width: 96vw !important;
+          top: 2vh !important;
+          height: 96vh !important;
+          transform: scale(1) !important;
+        }
       }
 
     </style>
@@ -88,7 +89,7 @@ class: center, middle
 
 # **C++ Error Handling _Revisited_**
 
-# 🔹 🔹 🔹 🔹 🔹
+### 🔹 🔹 🔹 🔹 🔹
 
 ## Raphael Meyer
 
@@ -252,8 +253,8 @@ readMoisture :: Maybe Moisture
 ```
 
 ```haskell
-water_plant :: Maybe Volume
-water_plant = do
+waterPlant :: Maybe Volume
+waterPlant = do
   moisture <- readMoisture
   temperature <- readTemperature
   amount <- calculateAmount moisture temperature
@@ -269,7 +270,8 @@ class: center, middle
 ---
 class: center, middle
 
-# Already taken care of❗
+# Already taken
+# care of❗
 
 ---
 class: center, middle
@@ -279,8 +281,8 @@ class: center, middle
 ---
 
 ```haskell
-water_plant :: Maybe Volume
-water_plant = do
+waterPlant :: Maybe Volume
+waterPlant = do
   -- ...
 ```
 
@@ -307,19 +309,19 @@ class: middle
 
 --
 
-## 🔹 a nifty type system
+### 🔹 a nifty type system
 
 --
 
-## 🔹 lazy evaluation
+### 🔹 lazy evaluation
 
 --
 
-## 🔹 pattern matching
+### 🔹 pattern matching
 
 --
 
-## 🔹 ...
+### 🔹 ...
 
 ---
 class: center, middle
@@ -475,8 +477,8 @@ readMoisture :: Maybe Moisture
 ```
 
 ```haskell
-water_plant :: Maybe Volume
-water_plant = do
+waterPlant :: Maybe Volume
+waterPlant = do
   moisture <- readMoisture
   temperature <- readTemperature
   amount <- calculateAmount moisture temperature
@@ -484,19 +486,10 @@ water_plant = do
   return amount
 ```
 
----
-class: middle
+--
 
 ```haskell
-water_plant :: Maybe Volume
-water_plant = do
-  -- ...
-```
-
-```haskell
-main = do
-  let amount = water_plant
-  maybe (putStrLn "Error") (putStrLn . show) amount
+main = putStrLn . maybe "Error !" show $ waterPlant
 ```
 
 --
@@ -510,19 +503,18 @@ Volume 42
 
 ```shell
 $ ./water_plant
-Error
+Error !
 ```
 
 ---
-class: middle
+class: center, middle
 
-## .center[**`>>=`** is implemented by]
+# `>>=`
 
-### 🔹 `Mabye`
-### 🔹 `Either`
-### 🔹 `IO`
-### 🔹 `[]`
-### 🔹 ...
+## is implemented by
+
+# `Mabye`, `Either`, `[]`,
+# `IO`, `State`, ...
 
 ---
 class: center, middle
@@ -553,13 +545,19 @@ readMoisture :: Either Error Moisture
 ```
 
 ```haskell
-water_plant :: Either Error Volume
-water_plant = do
+waterPlant :: Either Error Volume
+waterPlant = do
   moisture <- readMoisture
   temperature <- readTemperature
   amount <- calculateAmount moisture temperature
   pump amount
   return amount
+```
+
+--
+
+```haskell
+main = putStrLn . either show show $ waterPlant
 ```
 
 --
@@ -850,11 +848,13 @@ class: middle
       };
 
       var slideshow = remark.create({
-        ratio: '16:9',
+        // ratio: '16:9',
+        ratio: '4:3',
         slideNumberFormat: '',
         highlightStyle: 'github',
         highlightLanguage: 'cpp'
       });
+
     </script>
   </body>
 </html>
