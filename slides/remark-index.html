@@ -524,6 +524,192 @@ enum Result<T, E> {
 
 more Result stuff? usage?
 
+...
+
+---
+class: center, middle
+
+# **`std::optional`**
+
+---
+class: middle
+
+```cpp
+std::optional<Volume> water() {
+  auto const moisture = moisture_sensor.read();
+  if (not moisture) {
+    return std::nullopt;
+  }
+  auto const temperature = thermo_sensor.read();
+  if (not temperature) {
+    return std::nullopt;
+  }
+  auto const amount =
+    calculate_amount(moisture.value(), temperature.value());
+
+  if (not pump.pump(amount)) {
+    return std::nullopt;
+  }
+  return amount;
+}
+```
+
+---
+class: center, middle
+
+# **`std::variant`**
+
+---
+class: middle
+
+```cpp
+std::variant<Error, Volume> water() {
+  auto const moisture = moisture_sensor.read();
+  auto error = std::get_if<Error>(&moisture);
+  if(error) { return *error; }
+
+  auto const temperature = thermo_sensor.read();
+  error = std::get_if<Error>(&temperature);
+  if(error) { return *error; }
+
+  auto const amount = calculate_amount(
+    std::get<Moisture>(moisture),
+    std::get<Temperature>(temperature));
+
+  auto const pump_error = pump.pump(amount);
+  if(pump_error) { return pump_error.value(); }
+
+  return amount;
+}
+```
+
+---
+class: center, middle
+
+# **`std::variant`**
+
+---
+class: middle
+
+## .center[A few helpers]
+
+```cpp
+template <class... Ts> struct overloaded : Ts... {
+  using Ts::operator()...;
+};
+
+template <class... Ts> overloaded(Ts...)->overloaded<Ts...>;
+```
+
+```cpp
+template <typename T>
+using Result = std::variant<Error, T>;
+
+using Amount = Result<Volume>;
+```
+
+---
+class: middle
+
+```cpp
+Amount water() {
+  auto const moisture = moisture_sensor.read();
+  return std::visit(overloaded{
+    [](Error const & e) { return Amount{e}; },
+    [&](Moisture const & moisture) {
+      auto const temperature = thermo_sensor.read();
+      return std::visit(overloaded{
+        [](Error const & e) { return Amount{e}; },
+        [&](Temperature const &temperature) {
+          auto const amount =
+            calculate_amount(moisture, temperature);
+            auto const pump_error = pump.pump(amount);
+            if (pump_error) {
+              return Amount{pump_error.value()};
+            }
+            return Amount{amount};
+        }}, temperature);
+    }}, moisture);
+}
+```
+
+---
+
+# variation ? simplification ?
+
+# ...
+
+---
+
+...
+
+---
+class: center, middle
+
+# DIY `either`
+
+---
+class: middle
+
+```cpp
+template<typename Left, typename Right>
+class either {
+public:
+  Left const & left() const {
+    return std::get<left_t>(_value).value;
+  }
+  bool is_left() { /* ... */ }
+  // ...
+
+private:
+  std::variant<left_t, right_t> _value;
+  // ...
+};
+```
+
+```cpp
+template<typename In, typename Left, typename Func>
+auto operator>>(either<Left, In> const & in, Func f)
+  -> decltype(f(in.right())) {
+
+  using Result =
+    typename decltype(f(in.right()))::right_type;
+
+  if(in.is_right()) {
+    return f(in.right());
+  }
+
+  return func::make_left<Left, Result>(in.left());
+}
+```
+
+---
+class: middle
+
+```cpp
+auto const result = make_right<std::string, int>(1)
+
+  >> [](auto const & arg){
+    return make_right<std::string, double>(arg + 0.7);
+  }
+  >> [](auto const & arg){
+    return make_right<std::string, double>(arg + 0.4);
+  }
+  >> [](auto const & arg){
+    return make_right<std::string, int>(arg + 1);
+  };
+
+assert(result.is_right());
+assert(result.right() == 3);
+```
+
+---
+
+# ????
+
+
+
+
 
 
 
