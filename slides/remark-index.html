@@ -497,6 +497,16 @@ water = do
 
 # [...]
 
+```shell
+$> ./water
+Volume 42
+```
+
+```shell
+$> ./water
+! Error "Temperature sensor offline"
+```
+
 ---
 class: center, middle
 
@@ -535,6 +545,10 @@ class: center, middle
 class: middle
 
 ```cpp
+std::optional<Moisture> MoistureSensor::read() { /* ... */ }
+```
+
+```cpp
 std::optional<Volume> water() {
   auto const moisture = moisture_sensor.read();
   if (not moisture) {
@@ -553,6 +567,14 @@ std::optional<Volume> water() {
   return amount;
 }
 ```
+
+---
+
+# pump()
+
+# signature ? std::optional<void> ??
+
+
 
 ---
 class: center, middle
@@ -582,6 +604,10 @@ std::variant<Error, Volume> water() {
   return amount;
 }
 ```
+
+# pump() ? signature ?
+# std::variant<Error, void> ??
+# std::optinal ??
 
 ---
 class: center, middle
