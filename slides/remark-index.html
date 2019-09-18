@@ -128,6 +128,7 @@ class: middle
 
 ```cpp
 Moisture MoistureSensor::read() { /* ... */ }
+void Pump::pump(Volume amount) { /* ... */ }
 // ...
 ```
 
@@ -159,6 +160,7 @@ class: middle
 
 ```cpp
 bool MoistureSensor::read(Moisture & moisture) { /* ... */ }
+bool Pump::pump(Volume amount) { /* ... */ }
 // ...
 ```
 
@@ -183,6 +185,7 @@ class: middle
 
 ```cpp
 bool MoistureSensor::read(Moisture & moisture) { /* ... */ }
+bool Pump::pump(Volume amount) { /* ... */ }
 // ...
 ```
 
@@ -212,6 +215,7 @@ class: middle
 
 ```cpp
 Moisture MoistureSensor::read() { /* ... */ }
+void Pump::pump(Volume amount) { /* ... */ }
 // ...
 ```
 
@@ -249,6 +253,9 @@ class: middle
 
 ```haskell
 readMoisture :: Maybe Moisture
+-- ...
+
+pump :: Volume -> Maybe ()
 -- ...
 ```
 
@@ -474,6 +481,9 @@ class: middle
 ```haskell
 readMoisture :: Maybe Moisture
 -- ...
+
+pump :: Volume -> Maybe ()
+-- ...
 ```
 
 ```haskell
@@ -533,14 +543,17 @@ class: middle
 
 # .center[Convention]
 
-## 🔹 `Right` is a _value_
-## 🔹 `Left` is an _error_
+### 🔹 `Right` is a _value_
+### 🔹 `Left` is an _error_
 
 ---
 class: middle
 
 ```haskell
 readMoisture :: Either Error Moisture
+-- ...
+
+pump :: Volume -> Either Error ()
 -- ...
 ```
 
@@ -601,6 +614,10 @@ enum Result<T, E> {
 
 more Result stuff? usage?
 
+```rust
+some code here
+```
+
 ...
 
 ---
@@ -611,15 +628,17 @@ class: center, middle
 ---
 class: center, middle
 
-# `Maybe`
-# ≈
 # `std::optional`
+# ≈
+# `Maybe`
 
 ---
 class: middle
 
 ```cpp
 std::optional<Moisture> MoistureSensor::read() { /* ... */ }
+bool Pump::pump(Volume amount) { /* ... */ }
+// ...
 ```
 
 ```cpp
