@@ -29,19 +29,11 @@ fn pump(v: &Volume) -> Result<(), String> {
 }
 
 fn water_plant() -> Result<Volume, String> {
-    let moisture = match read_moisture() {
-        Ok(m) => m,
-        Err(e) => return Err(e),
-    };
-    let temperature = match read_temperature() {
-        Ok(t) => t,
-        Err(e) => return Err(e),
-    };
+    let moisture = read_moisture()?;
+    let temperature = read_temperature()?;
     let amount = calculate_amount(moisture, temperature);
-    match pump(&amount) {
-        Ok(_) => Ok(amount),
-        Err(e) => Err(e),
-    }
+    pump(&amount)?;
+    Ok(amount)
 }
 
 fn main() {

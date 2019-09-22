@@ -595,6 +595,16 @@ class: center, middle
 class: middle
 
 ```rust
+.... Option ...
+```
+
+--
+
+## .center[≈ `Maybe`]
+
+--
+
+```rust
 enum Result<T, E> {
    Ok(T),
    Err(E),
@@ -603,21 +613,97 @@ enum Result<T, E> {
 
 --
 
-# .center[≈]
-
-## .center[specialization of]
-
-# .center[`Either`]
+## .center[≈ `Either`]
 
 ---
-
-# more Result stuff? usage?
+class: middle
 
 ```rust
-some code here
+fn read_moisture() -> Result<Moisture, String> {
+  // ...
+}
+
+fn pump(v: &Volume) -> Result<(), String> {
+  // ...
+}
 ```
 
-...
+```rust
+fn water_plant() -> Result<Volume, String> {
+    let moisture = match read_moisture() {
+        Ok(m) => m,
+        Err(e) => return Err(e),
+    };
+    let temperature = match read_temperature() {
+        Ok(t) => t,
+        Err(e) => return Err(e),
+    };
+    let amount = calculate_amount(moisture, temperature);
+    match pump(&amount) {
+        Ok(_) => Ok(amount),
+        Err(e) => Err(e),
+    }
+}
+```
+
+---
+class: middle
+
+```rust
+fn read_moisture() -> Result<Moisture, String> {
+  // ...
+}
+
+fn pump(v: &Volume) -> Result<(), String> {
+  // ...
+}
+```
+
+```rust
+fn water_plant() -> Result<Volume, String> {
+    let moisture = read_moisture()?;
+    let temperature = read_temperature()?;
+    let amount = calculate_amount(moisture, temperature);
+    pump(&amount)?;
+    Ok(amount)
+}
+```
+
+---
+class: middle
+
+```rust
+fn water_plant() -> Result<Volume, String> {
+    let moisture = read_moisture()?;
+    let temperature = read_temperature()?;
+    let amount = calculate_amount(moisture, temperature);
+    pump(&amount)?;
+    Ok(amount)
+}
+```
+
+```rust
+fn main() {
+    match water_plant() {
+        Err(e) => println!("{}", e),
+        Ok(amount) => println!("Water {:?} ml", amount.ml),
+    }
+}
+```
+
+--
+
+```shell
+$ ./water_plant
+Water 42 ml
+```
+
+--
+
+```shell
+$ ./water_plant
+Temperature sensor error
+```
 
 ---
 class: center, middle
