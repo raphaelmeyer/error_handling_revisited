@@ -224,8 +224,7 @@ Volume water() {
   try {
     auto const moisture = moisture_sensor.read();
     auto const temperature = thermo_sensor.read();
-    auto const amount =
-      calculate_amount(moisture, temperature);
+    auto const amount = calculate_amount(moisture, temperature);
 
     pump.pump(amount);
     return amount;
@@ -612,7 +611,7 @@ enum Result<T, E> {
 
 ---
 
-more Result stuff? usage?
+# more Result stuff? usage?
 
 ```rust
 some code here
@@ -662,20 +661,17 @@ std::optional<Volume> water() {
 ```
 
 ---
-
-# pump()
-
-# signature ? std::optional<void> ??
-
-
-
----
 class: center, middle
 
 # **`std::variant`**
 
 ---
 class: middle
+
+```cpp
+std::variant<Error, Moisture> MoistureSensor::read() { /* .. */ }
+std::optional<Error> Pump::pump(Volume amount) { /* ... */ }
+```
 
 ```cpp
 std::variant<Error, Volume> water() {
@@ -698,14 +694,10 @@ std::variant<Error, Volume> water() {
 }
 ```
 
-# pump() ? signature ?
-# std::variant<Error, void> ??
-# std::optinal ??
-
 ---
 class: center, middle
 
-# **`std::variant`**
+# **`std::visit`**
 
 ---
 class: middle
@@ -867,8 +859,8 @@ class: middle
       };
 
       var slideshow = remark.create({
-        // ratio: '16:9',
-        ratio: '4:3',
+        ratio: '16:9',
+        // ratio: '4:3',
         slideNumberFormat: '',
         highlightStyle: 'github',
         highlightLanguage: 'cpp'
