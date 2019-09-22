@@ -89,7 +89,7 @@ class: center, middle
 
 # **C++ Error Handling _Revisited_**
 
-### 🔹 🔹 🔹 🔹 🔹
+✨
 
 ## Raphael Meyer
 
@@ -595,14 +595,20 @@ class: center, middle
 class: middle
 
 ```rust
-.... Option ...
+enum Option<T> {
+    None,
+    Some(T),
+}
 ```
 
 --
 
-## .center[≈ `Maybe`]
+# .center[`Option`]
+# .center[≈]
+# .center[`Maybe`]
 
---
+---
+class: middle
 
 ```rust
 enum Result<T, E> {
@@ -613,7 +619,9 @@ enum Result<T, E> {
 
 --
 
-## .center[≈ `Either`]
+# .center[`Result`]
+# .center[≈]
+# .center[`Either`]
 
 ---
 class: middle
