@@ -1,0 +1,5 @@
+#/bin/bash
+
+rustc result.rs
+rustc option.rs
+
