@@ -70,6 +70,12 @@
       .large { font-size: 150% }
       .huge { font-size: 200% }
 
+      .footnote {
+        position: absolute;
+        bottom: 1em;
+        right: 1em;
+      }
+
       @media print {
         .remark-slide-scaler {
           left: 2vw !important;
@@ -603,9 +609,7 @@ enum Option<T> {
 
 --
 
-# .center[`Option`]
-# .center[≈]
-# .center[`Maybe`]
+## .right[( ≈ `Maybe` )]
 
 ---
 class: middle
@@ -619,9 +623,12 @@ enum Result<T, E> {
 
 --
 
-# .center[`Result`]
-# .center[≈]
-# .center[`Either`]
+## .right[( ≈ `Either` )]
+
+---
+class: center, middle
+
+# **`Result`**
 
 ---
 class: middle
@@ -716,14 +723,16 @@ Temperature sensor error
 ---
 class: center, middle
 
-# **`std::optional`**
+# **Back to C++**
 
 ---
 class: center, middle
 
-# `std::optional`
-# ≈
-# `Maybe`
+# **`std::optional`**
+
+--
+
+## .right[( ≈ `Maybe` )]
 
 ---
 class: middle
@@ -770,19 +779,22 @@ std::optional<Error> Pump::pump(Volume amount) { /* ... */ }
 ```cpp
 std::variant<Error, Volume> water() {
   auto const moisture = moisture_sensor.read();
-  auto error = std::get_if<Error>(&moisture);
-  if(error) { return *error; }
+  if(auto const error = std::get_if<Error>(&moisture); error) {
+    return *error;
+  }
 
   auto const temperature = thermo_sensor.read();
-  error = std::get_if<Error>(&temperature);
-  if(error) { return *error; }
+  if(auto const error = std::get_if<Error>(&temperature); error) {
+    return *error;
+  }
 
   auto const amount = calculate_amount(
     std::get<Moisture>(moisture),
     std::get<Temperature>(temperature));
 
-  auto const pump_error = pump.pump(amount);
-  if(pump_error) { return pump_error.value(); }
+  if(auto const error = pump.pump(amount); error) {
+    return error.value();
+  }
 
   return amount;
 }
@@ -828,9 +840,8 @@ Amount water() {
         [&](Temperature const &temperature) {
           auto const amount =
             calculate_amount(moisture, temperature);
-            auto const pump_error = pump.pump(amount);
-            if (pump_error) {
-              return Amount{pump_error.value()};
+            if(auto const error = pump.pump(amount); error) {
+              return Amount{error.value()};
             }
             return Amount{amount};
         }}, temperature);
@@ -926,9 +937,45 @@ assert(result.right() == 3);
 
 
 
+---
+class: center, middle
 
+# **My Learings**
 
+---
+class: center, middle
 
+## _Either_ look for a new job as a `haskell` programmer
+
+--
+
+### or
+
+## _Maybe_ spend more time learning `C++` template meta programming.
+
+---
+class: center, middle
+
+# **Summary**
+
+---
+class: center, middle
+
+## Keep your eyes open
+
+--
+
+... and discover the functional gems that inspired your language.
+
+--
+
+### and
+
+## Learn a functional language
+
+--
+
+... so you're actually capable of spotting them.
 
 ---
 class: center, middle

@@ -1,30 +1,23 @@
 #include <optional>
 #include <variant>
-
 #include <iostream>
 
 template <class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 template <class... Ts> overloaded(Ts...)->overloaded<Ts...>;
 
-class Error {};
-
 class Volume {};
 class Moisture {};
 class Temperature {};
-
-template <typename T>
-using Result = std::variant<Error, T>;
-
-using Amount = Result<Volume>;
+class Error {};
 
 class ThermoSensor {
 public:
-  Result<Temperature> read() { return Temperature{}; }
+  std::variant<Error, Temperature> read() { return Temperature{}; }
 };
 
 class MoistureSensor {
 public:
-  Result<Moisture> read() { return Moisture{}; }
+  std::variant<Error, Moisture> read() { return Moisture{}; }
 };
 
 class Pump {
@@ -34,23 +27,25 @@ public:
 
 class WateringSystem {
 public:
-  Amount water() {
+  std::variant<Error, Volume> water() {
     auto const moisture = moisture_sensor.read();
-    return std::visit(overloaded{
-      [](Error const &e) { return Amount{e}; },
-      [&](Moisture const &moisture) {
-        auto const temperature = thermo_sensor.read();
-        return std::visit(overloaded{
-          [](Error const &e) { return Amount{e}; },
-          [&](Temperature const &temperature) {
-            auto const amount =
-              calculate_amount(moisture, temperature);
-              if(auto const error = pump.pump(amount); error) {
-                return Amount{error.value()};
-              }
-              return Amount{amount};
-          }}, temperature);
-      }}, moisture);
+    if(auto const error = std::get_if<Error>(&moisture); error) {
+      return *error;
+    }
+
+    auto const temperature = thermo_sensor.read();
+    if(auto const error = std::get_if<Error>(&temperature); error) {
+      return *error;
+    }
+
+    auto const amount = calculate_amount(std::get<Moisture>(moisture),
+                                         std::get<Temperature>(temperature));
+
+    if(auto const error = pump.pump(amount); error) {
+      return error.value();
+    }
+
+    return amount;
   }
 
 private:
@@ -65,6 +60,7 @@ private:
 
 int main() {
   WateringSystem system;
+  system.water();
   auto const result = system.water();
   auto const amount = std::get_if<Volume>(&result);
   if (amount) {
@@ -72,4 +68,5 @@ int main() {
   } else {
     std::cout << "Error!\n";
   }
+
 }

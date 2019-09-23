@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 
+project(cpp_examples)
+
 add_library(settings INTERFACE)
 target_compile_features(settings INTERFACE cxx_std_17)
 target_compile_options(settings INTERFACE "-Wall" "-Werror")
@@ -16,4 +18,5 @@ add_example(example3)
 add_example(example4)
 add_example(example5)
 add_example(example6)
+add_example(example6b)
 add_example(example7)
