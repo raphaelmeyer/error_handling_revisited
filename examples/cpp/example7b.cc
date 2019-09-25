@@ -29,7 +29,7 @@ public:
 
 class Pump {
 public:
-  std::optional<Error> pump(Volume amount) { return std::nullopt; }
+  Result<std::monostate> pump(Volume amount) { return std::monostate{}; }
 };
 
 class WateringSystem {
@@ -37,17 +37,18 @@ public:
   Amount water() {
     auto const moisture = moisture_sensor.read();
     return std::visit(overloaded{
-      [](Error const &e) { return Amount{e}; },
+      [](Error const & e) { return Amount{e}; },
       [&](Moisture const &moisture) {
         auto const temperature = thermo_sensor.read();
         return std::visit(overloaded{
-          [](Error const &e) { return Amount{e}; },
+          [](Error const & e) { return Amount{e}; },
           [&](Temperature const &temperature) {
             auto const amount = calculate_amount(moisture, temperature);
-            if(auto const error = pump.pump(amount); error) {
-              return Amount{error.value()};
-            }
-            return Amount{amount};
+            auto const pump_result = pump.pump(amount);
+            return std::visit(overloaded{
+              [](Error const & e) { return Amount{e}; },
+              [&](auto const & _) { return Amount{amount}; }
+            }, pump_result);
           }}, temperature);
       }}, moisture);
   }
