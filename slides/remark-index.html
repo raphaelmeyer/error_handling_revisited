@@ -420,8 +420,15 @@ class: center, middle
 ---
 class: middle
 
+
 ```haskell
 (>>=) :: (Monad m) => m a -> (a -> m b) -> m b
+```
+
+--
+
+```haskell
+data Maybe a = Nothing | Just a
 ```
 
 --
@@ -547,6 +554,27 @@ class: middle
 
 ### 🔹 `Right` is a _value_
 ### 🔹 `Left` is an _error_
+
+---
+class: middle
+
+```haskell
+(>>=) :: (Monad m) => m a -> (a -> m b) -> m b
+```
+
+--
+
+```haskell
+data Either a b = Left a | Right b
+```
+
+--
+
+```haskell
+instance Monad Either where
+  Left  l >>= _ = Left l
+  Right r >>= k = k r
+```
 
 ---
 class: middle
@@ -726,10 +754,6 @@ class: center, middle
 class: center, middle
 
 # **`std::optional`**
-
---
-
-## .right[( ≈ `Maybe` )]
 
 ---
 class: middle
@@ -938,15 +962,9 @@ Amount WateringSystem::water() {
 ```
 
 ---
+class: middle
 
-# WIP
-
-# ... ???
-
----
-class: center, middle
-
-# DIY `Result`
+# .center[DIY `Result`]
 
 ```cpp
 template<class Result, class Error>
@@ -956,19 +974,16 @@ public:
 };
 ```
 
-## ...
-
----
-class: center, middle
-
-# ...
+.footnote[🚧 Work in Progress]
 
 ---
 class: center, middle
 
 # DIY `either` ???
 
-replace with result
+-> replace with result
+
+.footnote[🚧 Work in Progress]
 
 ---
 class: middle
@@ -1005,6 +1020,8 @@ auto operator>>(either<Left, In> const & in, Func f)
 }
 ```
 
+.footnote[🚧 Work in Progress]
+
 ---
 class: middle
 
@@ -1025,23 +1042,27 @@ assert(result.is_right());
 assert(result.right() == 3);
 ```
 
+.footnote[🚧 Work in Progress]
+
 ---
 
-# WIP ???
+# C++XX features
 
+always mention when they appear, or at the end (here)?
 
+C++14
+* generic lambda
 
+C++17
+* std::optional
+* std::variant
+* std::visit
+* `if` Statements with Initializer
+* User-defined deduction guides
 
+do a quiz ? bingo ?
 
-
-
-
-
-
-
-
-
-
+.footnote[🚧 Work in Progress]
 
 ---
 class: center, middle
@@ -1058,6 +1079,16 @@ class: center, middle
 ### or
 
 ## _Maybe_ spend more time learning `C++` template meta programming.
+
+---
+class: center, middle
+
+# Your Learnings
+
+* C++14/17
+* ...
+
+.footnote[🚧 Work in Progress]
 
 ---
 class: center, middle
