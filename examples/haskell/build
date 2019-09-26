@@ -1,4 +1,5 @@
 #!/bin/bash
 
 ghc -dynamic --make example.hs
+ghc -dynamic --make either.hs
 

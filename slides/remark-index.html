@@ -67,8 +67,11 @@
         font-family: 'Roboto Mono';
       }
 
-      .large { font-size: 150% }
-      .huge { font-size: 200% }
+      .tiny  { font-size:  50%; }
+      .small { font-size:  75%; }
+      .big   { font-size: 125%; }
+      .large { font-size: 150%; }
+      .huge  { font-size: 200%; }
 
       .footnote {
         position: absolute;
@@ -139,20 +142,14 @@ void Pump::pump(Volume amount) { /* ... */ }
 ```
 
 ```cpp
-class WateringSystem {
-public:
+Volume WateringSystem::water() {
+  auto const moisture = moisture_sensor.read();
+  auto const temperature = thermo_sensor.read();
+  auto const amount = calculate_amount(moisture, temperature);
 
-  Volume WateringSystem::water() {
-    auto const moisture = moisture_sensor.read();
-    auto const temperature = thermo_sensor.read();
-    auto const amount = calculate_amount(moisture, temperature);
+  pump.pump(amount);
 
-    pump.pump(amount);
-
-    return amount;
-  }
-
-  // ...
+  return amount;
 }
 ```
 
@@ -173,11 +170,11 @@ bool Pump::pump(Volume amount) { /* ... */ }
 ```cpp
 bool WateringSystem::water(Volume & amount) {
   Moisture moisture;
-  if (moisture_sensor.read(moisture)) {
+  if(moisture_sensor.read(moisture)) {
     Temperature temperature;
-    if (thermo_sensor.read(temperature)) {
+    if(thermo_sensor.read(temperature)) {
       amount = calculate_amount(moisture, temperature);
-      if (pump.pump(amount)) {
+      if(pump.pump(amount)) {
         return true;
       }
     }
@@ -198,17 +195,17 @@ bool Pump::pump(Volume amount) { /* ... */ }
 ```cpp
 bool WateringSystem::water(Volume & amount) {
   Moisture moisture;
-  if (not moisture_sensor.read(moisture)) {
+  if(not moisture_sensor.read(moisture)) {
     return false;
   }
 
   Temperature temperature;
-  if (not thermo_sensor.read(temperature)) {
+  if(not thermo_sensor.read(temperature)) {
     return false;
   }
 
   amount = calculate_amount(moisture, temperature);
-  if (not pump.pump(amount)) {
+  if(not pump.pump(amount)) {
     return false;
   }
 
@@ -235,9 +232,9 @@ Volume WateringSystem::water() {
     pump.pump(amount);
     return amount;
 
-  } catch (SensorError const &) {
+  } catch(SensorError const &) {
     throw WateringError{"..."};
-  } catch (PumpError const &) {
+  } catch(PumpError const &) {
     throw WateringError{"..."};
   }
 }
@@ -317,7 +314,7 @@ waterPlant = do
 ---
 class: middle
 
-# .right[... and a few _small_ details]
+# .right[... and a few .small[_small_] details]
 
 --
 
@@ -1113,6 +1110,7 @@ class: middle
         // ratio: '4:3',
         slideNumberFormat: '',
         highlightStyle: 'github',
+        // highlightStyle: 'dracula',
         highlightLanguage: 'cpp'
       });
 
