@@ -888,34 +888,6 @@ class: middle
 
 ```cpp
 Result<Moisture> MoistureSensor::read() { /* ... */ }
-std::optional<Error> Pump::pump(Volume amount) { /* ... */ }
-```
-
-```cpp
-Amount WateringSystem::water() {
-  auto const moisture = moisture_sensor.read();
-  return std::visit(overloaded{
-    [](Error const & e) { return Amount{e}; },
-    [&](Moisture const & moisture) {
-      auto const temperature = thermo_sensor.read();
-      return std::visit(overloaded{
-        [](Error const & e) { return Amount{e}; },
-        [&](Temperature const & temperature) {
-          auto const amount = calculate_amount(moisture, temperature);
-          if(auto const error = pump.pump(amount); error) {
-            return Amount{error.value()};
-          }
-          return Amount{amount};
-        }}, temperature);
-    }}, moisture);
-}
-```
-
----
-class: middle
-
-```cpp
-Result<Moisture> MoistureSensor::read() { /* ... */ }
 Result<std::monostate> Pump::pump(Volume amount) { /* ... */ }
 ```
 
