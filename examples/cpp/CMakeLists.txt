@@ -23,3 +23,5 @@ add_example(example6c)
 add_example(example7)
 add_example(example7b)
 add_example(example7c)
+add_example(example8)
+

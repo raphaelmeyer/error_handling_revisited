@@ -11,12 +11,12 @@ class Error {};
 
 class ThermoSensor {
 public:
-  std::variant<Error, Temperature> read() { return Temperature{}; }
+  std::variant<Temperature, Error> read() { return Temperature{}; }
 };
 
 class MoistureSensor {
 public:
-  std::variant<Error, Moisture> read() { return Moisture{}; }
+  std::variant<Moisture, Error> read() { return Moisture{}; }
 };
 
 class Pump {
@@ -26,7 +26,7 @@ public:
 
 class WateringSystem {
 public:
-  std::variant<Error, Volume> water() {
+  std::variant<Volume, Error> water() {
     auto const moisture = moisture_sensor.read();
     auto error = std::get_if<Error>(&moisture);
     if (error) {

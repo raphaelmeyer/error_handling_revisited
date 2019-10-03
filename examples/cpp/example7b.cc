@@ -13,7 +13,7 @@ class Moisture {};
 class Temperature {};
 
 template <typename T>
-using Result = std::variant<Error, T>;
+using Result = std::variant<T, Error>;
 
 using Amount = Result<Volume>;
 
