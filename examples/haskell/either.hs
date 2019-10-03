@@ -25,4 +25,6 @@ waterPlant = do
   pump amount
   return amount
 
-main = putStrLn . either show show $ waterPlant
+main = case waterPlant of
+  Right amount -> print amount
+  Left error   -> print error
