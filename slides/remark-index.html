@@ -797,12 +797,12 @@ class: center, middle
 class: middle
 
 ```cpp
-std::variant<Error, Moisture> MoistureSensor::read() { /* .. */ }
+std::variant<Moisture, Error> MoistureSensor::read() { /* .. */ }
 std::optional<Error> Pump::pump(Volume amount) { /* ... */ }
 ```
 
 ```cpp
-std::variant<Error, Volume> WateringSystem::water() {
+std::variant<Volume, Error> WateringSystem::water() {
   auto const moisture = moisture_sensor.read();
   if(auto const error = std::get_if<Error>(&moisture); error) {
     return *error;
@@ -829,12 +829,12 @@ std::variant<Error, Volume> WateringSystem::water() {
 class: middle
 
 ```cpp
-std::variant<Error, Moisture> MoistureSensor::read() { /* ... */ }
+std::variant<Moisture, Error> MoistureSensor::read() { /* ... */ }
 std::variant<std::monostate, Error> Pump::pump(Volume amount) { /* ... */ }
 ```
 
 ```cpp
-std::variant<Error, Volume> WateringSystem::water() {
+std::variant<Volume, Error> WateringSystem::water() {
   auto const moisture = moisture_sensor.read();
   if(auto const error = std::get_if<Error>(&moisture); error) {
     return *error;
@@ -878,7 +878,7 @@ template <class... Ts> overloaded(Ts...)->overloaded<Ts...>;
 
 ```cpp
 template <typename T>
-using Result = std::variant<Error, T>;
+using Result = std::variant<T, Error>;
 
 using Amount = Result<Volume>;
 ```
@@ -938,26 +938,9 @@ Amount WateringSystem::water() {
 ```
 
 ---
-class: middle
-
-# .center[DIY `Result`]
-
-```cpp
-template<class Result, class Error>
-class Result {
-public:
-  // ....
-};
-```
-
-.footnote[🚧 Work in Progress]
-
----
 class: center, middle
 
-# DIY `either` ???
-
--> replace with result
+# DIY `Result`
 
 .footnote[🚧 Work in Progress]
 
@@ -965,34 +948,59 @@ class: center, middle
 class: middle
 
 ```cpp
-template<typename Left, typename Right>
-class either {
+template<typename Ok, typename Err>
+class Result {
 public:
-  Left const & left() const {
-    return std::get<left_t>(_value).value;
-  }
-  bool is_left() { /* ... */ }
-  // ...
+  Result(Ok && value);
+  Result(Err && value);
+
+  Result(Ok const & value);
+  Result(Err const & value);
+
+  Ok const & ok() const;
+  Err const & err() const;
+
+  bool is_ok() const;
+  bool is_err() const;
 
 private:
-  std::variant<left_t, right_t> _value;
-  // ...
+  struct ok_t { Ok value; };
+  struct err_t { Err value; };
+
+  std::variant<ok_t, err_t> _value;
 };
 ```
 
+.footnote[🚧 Work in Progress]
+
+---
+class: middle
+
 ```cpp
-template<typename In, typename Left, typename Func>
-auto operator>>(either<Left, In> const & in, Func f)
-  -> decltype(f(in.right())) {
+Result<Moisture, Error> MoistureSensor::read() { /* ... */ }
+Result<std::monostate, Error> Pump::pump(Volume amount) { /* ... */ }
+```
 
-  using Result =
-    typename decltype(f(in.right()))::right_type;
-
-  if(in.is_right()) {
-    return f(in.right());
+```cpp
+Result<Volume, Error> WateringSystem::water() {
+  auto const moisture = moisture_sensor.read();
+  if(moisture.is_err()) {
+    return moisture.err();
   }
 
-  return func::make_left<Left, Result>(in.left());
+  auto const temperature = thermo_sensor.read();
+  if(temperature.is_err()) {
+    return temperature.err();
+  }
+
+  auto const amount = calculate_amount(moisture.ok(), temperature.ok());
+
+  auto const pump_result = pump.pump(amount);
+  if(pump_result.is_err()) {
+    return pump_result.err();
+  }
+
+  return amount;
 }
 ```
 
@@ -1000,6 +1008,35 @@ auto operator>>(either<Left, In> const & in, Func f)
 
 ---
 class: middle
+
+```cpp
+int main() {
+  auto const amount = WateringSystem{}.water();
+  if(amount.is_ok()) {
+    std::cout << "Water " << amount.ok().ml << " ml\n";
+  } else {
+    std::cout << amount.err().what << "\n";
+  }
+}
+```
+
+```shell
+$ ./water_plant
+Water 42 ml
+```
+
+
+```shell
+$ ./water_plant
+Temperature sensor error
+```
+
+.footnote[🚧 Work in Progress]
+
+---
+class: middle
+
+# bind operator for `Result` ?
 
 ```cpp
 auto const result = make_right<std::string, int>(1)
