@@ -977,6 +977,31 @@ private:
 class: middle
 
 ```cpp
+template<typename Ok, typename Err>
+Result<Ok, Err>::Result(Ok && value) : _value{ok_t{std::move(value)}} {}
+
+template<typename Ok, typename Err>
+Result<Ok, Err>::Result(Ok const & value) : _value{ok_t{value}} {}
+
+template<typename Ok, typename Err>
+Ok const & Result<Ok, Err>::ok() const {
+  return std::get<ok_t>(_value).value;
+}
+
+template<typename Ok, typename Err>
+bool Result<Ok, Err>::is_ok() const {
+  return std::holds_alternative<ok_t>(_value);
+}
+
+// ...
+```
+
+.footnote[🚧 Work in Progress]
+
+---
+class: middle
+
+```cpp
 Result<Moisture, Error> MoistureSensor::read() { /* ... */ }
 Result<std::monostate, Error> Pump::pump(Volume amount) { /* ... */ }
 ```
