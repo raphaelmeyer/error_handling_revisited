@@ -4,103 +4,72 @@
 
 Raphael Meyer, bbv Software Services AG
 
-> TODO write an abstract for the paper instead
+**Die Behandlung von Fehlern und Ausnahmesituationen ist nicht nur ein wichtiger Teil jeder Software, sondern oft auch sehr umfangreich.
+Gerade bei Embedded-Software, welche von der Interaktion mit Hardware geprägt ist, ist eine sorgfältige Fehlerbehandlung für den einwandfreien Betrieb der entwickelten Geräte unabdingbar.**
 
-**Die Behandlung von Fehlern und Ausnahmesituationen ist nicht nur ein wichtiger Teil jeder Software, sondern oft auch sehr umfangreich. Gerade bei Embedded-Software, welche von der Interaktion mit Hardware geprägt ist, ist eine sorgfältige Fehlerbehandlung für den einwandfreien Betrieb der entwickelten Geräte unabdingbar.**
+**Leider trägt die Fehler- und Ausnahmebehandlung aber oft dazu bei, dass Abläufe im Code schlechter lesbar sind.
+Der Code zu Ausnahmebehandlung drängt sich dazwischen und reisst die eigentlichen Abläufe visuell auseinander.**
 
-**Leider trägt die Fehler- und Ausnahmebehandlung aber oft dazu bei, dass Abläufe im Code schlechter lesbar sind. Der Code zu Ausnahmebehandlung drängt sich dazwischen und reißt die eigentlichen Abläufe visuell auseinander.**
-
-**Funktionale Programmiersprachen bieten hier interessante Konzepte, welche nicht ganz neu sind, aber in letzter Zeit vermehrt wiederentdeckt werden. Wir werden einen kurzen Blick auf das Fehlerhandling in Haskell werfen und betrachten, wie sich diese Konzepte in C++ umsetzen und anwenden lassen. Dabei treffen wir auch einige neue Features aus C++17 an.**
-
-
-
+**Funktionale Programmiersprachen bieten hier interessante Konzepte, welche nicht ganz neu sind, in letzter Zeit aber vermehrt wiederentdeckt werden.
+Die beiden in C++17 dazugestossenen Templateklassen `std::optional` und `std::variant` können helfen, die Signaturen von Funktionen und Methoden sprechender zu gestalten.**
 
 In der Softwareentwicklung gibt es unterschiedliche Typen von Fehlern.
 Wir konzentrieren uns hier auf Interaktionen mit der Aussenwelt, die nicht zum gewünschten Ergebnis führen.
-Zum Beispiel die Bewegung eines Motors, die nicht zu Ende geführt werden kann, oder eine ungültige Eingabe eines Anwenders.
-Bei der Interaktion mit der physikalischen Welt, sprechen wir auch von Seiteneffekten.
+Zum Beispiel die Bewegung eines Motors, die nicht zu Ende geführt werden kann.
+Mit anderen Worten ausgedrückt sprechen wir von Funktionen mit Seiteneffekten.
 
-Eine Funktion, die eine Interaktion mit Seiteneffekten abstrahiert, kann das Result auf unterschiedliche Weise zurückmelden.
-In C++ üblich sind unter anderem Return-Codes in Form von boolschen Werten oder Zahlencodes.
-Exceptions sind ein in C++ enthaltenes Sprachkonstrukt, um Fehler zurückzugeben.
+### Wie können Fehler kommuniziert werden?
 
-
+Eine Funktion, die eine Interaktion mit Seiteneffekten abstrahiert, kann das Result auf unterschiedliche Art zurückmelden.
+In C++ ist es unter anderem üblich, ein Ergebnis als boolschen Wert, Enumeration oder Zahlencode zurückzugeben.
+Die Verwendung von C++ Exceptions ist eine weitere Möglichkeit.
 
 Betrachten wir zur Veranschaulichung ein einfaches Beispiel.
 Wir haben ein einfaches Gerät zum automatischen Bewässern einer Topfpflanze.
-Aufgrund der Feuchtigkeit im Topf und der Umgebungstemperatur wird jeweils entschieden, wieviel Wasser in den Topf gepumpt werden soll.
+Aufgrund der Umgebungstemperatur und der Feuchtigkeit im Topf soll jeweils entschieden werden, wieviel Wasser in den Topf gepumpt wird.
 
 ```cpp
 <c++ code ohne error handling>
 ```
 Abb/Code 1 : Code Beispiel Bewässerungsfunktion
 
+> what is output parameter called in german?
 
-
-Verwendet eine Funktion Return-Codes, so muss ein allfälliger Return-Wert als Outputparameter zurückgegeben werden.
+Verwendet eine Funktion Returncodes, so muss ein allfälliger Rückgabewert als Outputparameter zurückgegeben werden.
 Outputparameter können beispielsweise mit Referenzen oder (Smart)-Pointers implementiert werden.
-Sie haben jedoch oft den Nachteil, dass deren Intention oftmals aus der reinen Funktionssignatur nicht klar sind, und es zusätzliche Dokumentation braucht.
+Der Nachteil ist, dass deren Intention oftmals aus der reinen Funktionssignatur nicht klar ist, und es zusätzliche Dokumentation braucht.
+Es tauchen Fragen zu deren _Ownership_ auf.
+Und es braucht weitere Erklärungen zum Zustand oder zur Gültigkeit eines _Outputparamaters_ im Fehlerfall.
 
+> what is ownership in german ?
 
 ```cpp
-
+<code nested if>
 ```
-Abb 2 : Funktionen mit Return Codes
+> Abb: bla bla bla
 
-Die üblichen ... sind verschachtelte if-Anweisungen, Early-Return oder Exceptions.
-
-Fehler aus der Funktion zurück geben:
-- status code/bool -> output parameter
-- exception
-
-status code auswerten
-- verschachtelte if-Anweisungen
-- Early-Return
--
-
-Verschachtelte if-Anweisungen skalieren jedoch schlecht mit dem Ablauf, den man in einem Code-Block ausführen möchte.
+Verschachtelte if-Anweisungen skalieren schlecht mit dem Ablauf, den man in einem Code-Block ausführen möchte.
 Die Verschachtelungstiefe nimmt mit jedem zusätzlichen Schritt zu.
 
-
-
-
-Die Behandlung von Seiteneffekten ist in Haskell auf elegante Art und Weise gelöst.
-Das erwähnte Beispiel könnte in Haskell folgendermassen aussehen:
-
-```haskell
+```cpp
+<code with early returns>
 ```
 
-Der Code wird nicht durch die Fehlerbehandlung gestört, aber dennoch ist klar, dass hier Seiteneffekte behandelt werden.
-Das Maybe Volume in der Funktionssignatur zeigt, dass die Funktion vielleicht einen Wert zurückgibt.
-Vielleicht kommt jedoch nichts zurück.
-Das do heisst, dass die in der Funktion aufgerufenen Funktionen vielleicht auch nichts zurückgeben.
-Sobald die erste innere Funktion nichts zurückliefert, werden die nachfolgende Aufrufe nicht mehr getätigt, und die Funktion gibt nichts zurück.
+> warum early return, no nesting, used in golang
 
-```haskell
-data Maybe a = Just a | Nothing
-```
-Abb X : Das Maybe ist ein abstrakter Datentyp, der einen anderen Typen einpackt (to wrap?). Ein Maybe ist entweder einfach ein Wert des eingepackten Typs (Just a) oder nichts (Nothing).
+> should I add the exceptions code example as well ?
 
-----
+Werden Exceptions verwendet, so bleibt der Ablauf kompakt und übersichtlich.
+Oftmals werden Exceptions aber in Embedded Software vermieden, machmal zu Recht, machmal zu Unrecht.
 
 
+> should I discusss these different cases of error handling?
+> - Fehler zurückliefern (-> sensor::read())
+> - Fehler propagieren (-> water_plant)
+> - Fehler auswerten (-> main)
 
 
-
-- Fehler zurückliefern (-> sensor::read())
-- Fehler propagieren (-> water_plant)
-- Fehler auswerten (-> main)
-
-
-
-
-
-<Einleitung : kein titel>
-
-<Nur kurz beispiel einführen und nachteile von nested if, output paramter etc erwähnen.>
-
-
-### Haskell
+### Ein Blick über den Zaun
 
 Die Behandlung von Seiteneffekten ist in Haskell auf elegante Art und Weise gelöst.
 Das erwähnte Beispiel könnte in Haskell folgendermassen aussehen:
@@ -108,7 +77,7 @@ Das erwähnte Beispiel könnte in Haskell folgendermassen aussehen:
 ```haskell
 <mit maybe>
 ```
-Abb N : ...
+> Abb N : ...
 
 Der Code wird nicht durch die Fehlerbehandlung gestört.
 Aber es ist trotzdem klar, dass hier Seiteneffekte behandelt werden.
@@ -124,7 +93,7 @@ Ein `Either` hat entweder den Wert `Right` oder `Left`. Ist der Wert ein `Left`,
 ```haskell
 <mit either>
 ```
-Abb N : ...
+> Abb N : ...
 
 Der `do`-Block verhält sich gleich wie diejenige mit Maybe, im Fehlerfall einfach ein `Left` zurückgegeben,
 welches den Fehler enthält.
@@ -152,7 +121,7 @@ Abb N : Mit dem ?-Operator ist der Code schon fast so Elegant wie in Haskell.
 ```rust
 <main>
 ```
-Abb N : Mit `match` kann ...
+> Abb N : Mit `match` kann ...
 
 Das `match` ist dem Pattern Matching von Haskell nachempfunden, wenn auch nicht so mächtig.
 Es ist darauf abgestimmt, mit Typen wie `Result` umzugehen.
@@ -165,9 +134,10 @@ Sie kann als C++ Variante von `Maybe` angesehen werden.
 ```cpp
 <code mit std::optional, aber was?>
 ```
+> Abb : ...
 
-Das std::optional eignet sich
-
+Das std::optional eignet sich ...
+> std::optional -> no invalid output param in case of error
 
 
 ### "Result" Wrapper um std::variant
