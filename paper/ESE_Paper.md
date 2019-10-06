@@ -17,7 +17,7 @@ Mit anderen Worten ausgedrückt sprechen wir von Funktionen mit Seiteneffekten.
 
 ### Wie können Fehler kommuniziert werden?
 
-Eine Funktion, die eine Interaktion mit Seiteneffekten abstrahiert, kann das Result auf unterschiedliche Art zurückmelden.
+Eine Funktion, die eine Interaktion mit Seiteneffekten abstrahiert, kann das Resultat auf unterschiedliche Art zurückmelden.
 In C++ ist es unter anderem üblich, einen _Return Code_ zurückzugeben.
 Dies kann ein einfacher boolscher Wert, eine Enumeration oder ein Zahlencode sein.
 Die Verwendung von C++ Exceptions ist eine weitere Möglichkeit.
