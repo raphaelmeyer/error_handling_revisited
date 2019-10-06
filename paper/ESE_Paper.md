@@ -7,9 +7,6 @@ Raphael Meyer, bbv Software Services AG
 **Die Behandlung von Fehlern und Ausnahmesituationen ist nicht nur ein wichtiger Teil jeder Software, sondern oft auch sehr umfangreich.
 Gerade bei Embedded-Software, welche von der Interaktion mit Hardware geprägt ist, ist eine sorgfältige Fehlerbehandlung für den einwandfreien Betrieb der entwickelten Geräte unabdingbar.**
 
-**Leider trägt die Fehler- und Ausnahmebehandlung aber oft dazu bei, dass Abläufe im Code schlechter lesbar sind.
-Der Code zu Ausnahmebehandlung drängt sich dazwischen und reisst die eigentlichen Abläufe visuell auseinander.**
-
 **Funktionale Programmiersprachen bieten hier interessante Konzepte, welche nicht ganz neu sind, in letzter Zeit aber vermehrt wiederentdeckt werden.
 Die beiden in C++17 dazu gestossenen Templateklassen `std::optional` und `std::variant` können helfen, die Signaturen von Funktionen und Methoden sprechender zu gestalten.**
 
@@ -54,10 +51,14 @@ bool WateringSystem::water(Volume & amount) {
 ```
 Abb. 1: Return Codes und verschachtelte if-Anweisungen
 
-Die Auswertung der Return Codes kann auf unterschiedlich Art geschehen.
+Die Auswertung von Return Codes kann auf unterschiedliche Art geschehen.
 Die zwei häufigsten Muster sind verschachtelte if-Anweisungen und _Early Returns_.
 Verschachtelte if-Anweisungen skalieren schlecht mit dem Ablauf, den man in einem Block ausführen möchte.
 Die Verschachtelungstiefe nimmt mit jedem zusätzlichen Schritt zu.
+
+Beim _Early Return_ unterbrechen die if-Anweisungen zwischen den einzelnen Schritten leider den ursprünglichen Ablauf, und wirken sich nachteilig auf die Lesbarkeit aus.
+Ein prominentes Beispiel für _Early Return_ ist die Programmiersprache Go.
+In Go ist es das Standardvorgehen zur Fehlerauswertung.
 
 ```cpp
 bool MoistureSensor::read(Moisture & moisture) { /* ... */ }
@@ -81,8 +82,8 @@ bool WateringSystem::water(Volume & amount) {
 ```
 Abb. 2: Return Codes und _Early Returns_
 
-In der Sprache Go sind _Early Returns_ das Standardvorgehen, um Fehler auszuwerten.
-Die if-Anweisungen zwischen den einzelnen Schritten unterbrechen leider zum Nachteil der Lesbarkeit den ursprünglichen Ablauf.
+Werden Exceptions verwendet, so bleibt der eigentliche Ablauf kompakt und übersichtlich.
+In der Embedded Softwareentwicklung werden Exceptions jedoch aus verschiedenen Gründen vielfach vermieden, manchmal auch ungerechtfertigt.
 
 ```cpp
 Volume WateringSystem::water() {
@@ -97,10 +98,7 @@ Volume WateringSystem::water() {
   }
 }
 ```
-Abb. 3: Das Beispiel unter Verwendung von Exceptions
-
-Werden Exceptions verwendet, so bleibt der Ablauf kompakt und übersichtlich.
-In der Embedded Softwareentwicklung werden Exceptions aus verschiedenen Gründen vielfach vermieden, oftmals jedoch ungerechtfertigt.
+Abb. 3: Beispiel unter Verwendung von Exceptions
 
 ### Ein Blick über den Zaun
 
