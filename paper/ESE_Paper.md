@@ -24,7 +24,7 @@ Die Verwendung von C++ Exceptions ist eine weitere Möglichkeit.
 
 Verwendet eine Funktion _Return Codes_, so muss ein allfälliger Rückgabewert als Ausgabeparameter zurückgegeben werden.
 Ausgabeparameter können beispielsweise mit Referenzen oder (intelligenten) Zeigern implementiert werden.
-Der Nachteil ist, dass deren Intention ohne zusätzliche Dokumentation oftmals nicht ersichtlich ist.
+Der Nachteil ist, dass deren Absicht ohne zusätzliche Dokumentation oftmals nicht ersichtlich ist.
 Es tauchen Fragen zu den Besitzverhältnissen auf und es braucht weitere Erklärungen zum Zustand oder zur Gültigkeit eines Ausgabeparameters im Fehlerfall.
 
 Betrachten wir zur Veranschaulichung ein einfaches Beispiel.
@@ -135,8 +135,8 @@ Ist der Wert ein `Left`, handelt es sich um einen Fehler.
 
 In der noch jungen Programmiersprache Rust werden die beiden Typen `Option` und `Result` verwendet, um Fehler zu melden.
 Sie können mit `Maybe` und `Either` aus Haskell verglichen werden.
-Ausserdem enthält Rust Spracheigenschaften, die bei deren Anwendung hilfreiche Unterstützung anbieten.
-Zum Beispiel das Statement `match` oder Operator ?.
+Ausserdem enthält Rust Spracheigenschaften, die hilfreich sind bei der Verwendung der beiden Typen.
+Zum Beispiel das Statement `match` oder der Operator `?`.
 
 ```rust
 fn read_moisture() -> Result<Moisture, String> {
@@ -163,9 +163,9 @@ Abb. 5: exemplarische Implementation in Rust
 Das `match` ist eine vereinfachte Form von dem, was man in Haskell als Pattern Matching kennt.
 Es ist darauf abgestimmt, mit Typen wie `Result` umzugehen.
 
-### std::optional
+### Neues aus C++17
 
-Mit C++17 wurde die Klasse std::optional in die Standard Library aufgenommen.
+Mit C++17 wurde die Klasse `std::optional` in die Standard Library aufgenommen.
 Sie kann als C++ Variante von `Maybe` angesehen werden.
 
 ```cpp
@@ -188,16 +188,13 @@ std::optional<Volume> WateringSystem::water() {
   return amount;
 }
 ```
-> Abb 6: Verwendung von std::optional
+Abb 6: Verwendung von std::optional
 
-Das std::optional eignet sich ...
-> std::optional -> no invalid output param in case of error
+Mit `std::optional` muss ein Rückgabewert nicht mehr als Ausgabeparameter definiert werden.
+Das Verhalten einer Funktion lässt sich so einfacher aus der Signatur ableiten, als bei einer Implementation mit Return Code und Ausgabeparameter.
 
-
-### "Result" Wrapper um std::variant
-
-Eine weitere Templateklasse, welche mit C++17 dazugekommen ist, ist das std::variant.
-Damit lassen sich Typen wie ein `Maybe` aus Haskell oder ein `Result` aus Rust nachbilden.
+`std::variant` ist eine weitere Templateklasse, welche mit C++17 neu dazugekommen ist.
+Damit lassen sich Typen wie ein `Either` aus Haskell oder ein `Result` aus Rust nachbilden.
 
 ```cpp
 std::variant<Moisture, Error> MoistureSensor::read() { /* ... */ }
@@ -217,7 +214,7 @@ Abb. 7: direkte Verwendung von std::variant
 Verwendet man std::variant direkt, um ein Result zu imitieren, so ist dessen Verwendung zuweilen etwas umständlich.
 Dies rührt unter anderem daher, dass Templateklassen aus der Standard Library möglichst allgemein gehalten werden, damit Erweiterungen in alle Richtungen möglich sind.
 
-Mit einem einfachen Wrapper um std::variant, kann man die Lesbarkeit des Code aber stark erhöhen.
+Mit einem einfachen Wrapper um `std::variant`, kann man die Lesbarkeit des Code aber stark erhöhen.
 
 ```cpp
 template<typename Ok, typename Err>
@@ -263,16 +260,17 @@ Result<Volume, Error> WateringSystem::water() {
 ```
 Abb. 9: Anwendungsbeispiel mit der eigenen Klasse `Result`
 
-Das Weiterleiten von Fehlern erfolgt zwar immer noch manuell, aber aus den Funktions- und Methodensignaturen lässt sich viel leichter ablesen, wie das Verhalten ist, als wenn zum Beispiel Outputparamater und Returncodes verwendet werden.
-> very bad german
+Das Weiterleiten von Fehlern erfolgt zwar immer noch manuell mit if-Anweisungen,
+aber die Signaturen drücken die Absicht der Funktionen und Methoden besser aus.
+Der Code wird durch das Interface der Klasse `Result` klarer.
 
 Natürlich ist es denkbar, das man die Funktionsweise eines Haskell `do`-Blocks oder dem Operator `?` aus Rust nachzubilden versucht.
-Man wird dabei aber kaum darum herum kommen, dass Funktionsaufrufe in einem Block in Form von Funktionsobjekten benötigt werden.
-Das heisst wiederum, dass diese zusätzlich eingepackt werden müssen, beispielsweise mit Lambda-Ausdrücken oder std::bind.
+Man wird dabei aber kaum darum herum kommen, dass Funktionsaufrufe in Form von Funktionsobjekten benötigt werden.
+Das heisst wiederum, dass diese zusätzlich eingepackt werden müssen, beispielsweise mit Lambda-Ausdrücken oder `std::bind`.
 
 ### Zusammenfassung
 
-Funktionale Programmiersprachen, wie zum Beispiel Haskell bieten interessante Möglichkeiten zur Fehlerbehandlung an.
+Wie am Beispiel von Haskell gezeigt, bieten funktionale Programmiersprachen interessante Möglichkeiten zur Fehlerbehandlung an.
 Entstanden ist dies vor allem aus einer Notwendigkeit heraus, denn auch funktionale Sprachen müssen mit Seiteneffekten umgehen können.
 Die Eleganz, mit der dieses Problem gelöst wurde, hat dazu geführt, dass Merkmale von funktionalen Sprachen vermehrt auch in konventionelle und etablierte Sprachen einfliessen.
 
