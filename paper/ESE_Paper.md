@@ -1,6 +1,6 @@
 # C++ Error Handling Revisited
 
-## <sub title>
+## Was wir von funktionalen Sprachen lernen können
 
 Raphael Meyer, bbv Software Services AG
 
@@ -11,7 +11,7 @@ Gerade bei Embedded-Software, welche von der Interaktion mit Hardware geprägt i
 Der Code zu Ausnahmebehandlung drängt sich dazwischen und reisst die eigentlichen Abläufe visuell auseinander.**
 
 **Funktionale Programmiersprachen bieten hier interessante Konzepte, welche nicht ganz neu sind, in letzter Zeit aber vermehrt wiederentdeckt werden.
-Die beiden in C++17 dazugestossenen Templateklassen `std::optional` und `std::variant` können helfen, die Signaturen von Funktionen und Methoden sprechender zu gestalten.**
+Die beiden in C++17 dazu gestossenen Templateklassen `std::optional` und `std::variant` können helfen, die Signaturen von Funktionen und Methoden sprechender zu gestalten.**
 
 In der Softwareentwicklung gibt es unterschiedliche Typen von Fehlern.
 Wir konzentrieren uns hier auf Interaktionen mit der Aussenwelt, die nicht zum gewünschten Ergebnis führen.
@@ -21,109 +21,102 @@ Mit anderen Worten ausgedrückt sprechen wir von Funktionen mit Seiteneffekten.
 ### Wie können Fehler kommuniziert werden?
 
 Eine Funktion, die eine Interaktion mit Seiteneffekten abstrahiert, kann das Result auf unterschiedliche Art zurückmelden.
-In C++ ist es unter anderem üblich, ein Ergebnis als boolschen Wert, Enumeration oder Zahlencode zurückzugeben.
+In C++ ist es unter anderem üblich, einen _Return Code_ zurückzugeben.
+Dies kann ein einfacher boolscher Wert, eine Enumeration oder ein Zahlencode sein.
 Die Verwendung von C++ Exceptions ist eine weitere Möglichkeit.
+
+Verwendet eine Funktion _Return Codes_, so muss ein allfälliger Rückgabewert als Ausgabeparameter zurückgegeben werden.
+Ausgabeparameter können beispielsweise mit Referenzen oder (intelligenten) Zeigern implementiert werden.
+Der Nachteil ist, dass deren Intention ohne zusätzliche Dokumentation oftmals nicht ersichtlich ist.
+Es tauchen Fragen zu den Besitzverhältnissen auf und es braucht weitere Erklärungen zum Zustand oder zur Gültigkeit eines Ausgabeparameters im Fehlerfall.
 
 Betrachten wir zur Veranschaulichung ein einfaches Beispiel.
 Wir haben ein einfaches Gerät zum automatischen Bewässern einer Topfpflanze.
-Aufgrund der Umgebungstemperatur und der Feuchtigkeit im Topf soll jeweils entschieden werden, wieviel Wasser in den Topf gepumpt wird.
-
-```cpp
-<c++ code ohne error handling>
-```
-Abb/Code 1 : Code Beispiel Bewässerungsfunktion
-
-> what is output parameter called in german?
-
-Verwendet eine Funktion Returncodes, so muss ein allfälliger Rückgabewert als Outputparameter zurückgegeben werden.
-Outputparameter können beispielsweise mit Referenzen oder (Smart)-Pointers implementiert werden.
-Der Nachteil ist, dass deren Intention oftmals aus der reinen Funktionssignatur nicht klar ist, und es zusätzliche Dokumentation braucht.
-Es tauchen Fragen zu deren _Ownership_ auf.
-Und es braucht weitere Erklärungen zum Zustand oder zur Gültigkeit eines _Outputparamaters_ im Fehlerfall.
-
-> what is ownership in german ?
+Aufgrund der Umgebungstemperatur und der Feuchtigkeit im Topf soll jeweils entschieden werden, wie viel Wasser in den Topf gepumpt wird.
 
 ```cpp
 <code nested if>
 ```
-> Abb: bla bla bla
+Abb. 1: Return Codes und verschachtelte if-Anweisungen
 
-Verschachtelte if-Anweisungen skalieren schlecht mit dem Ablauf, den man in einem Code-Block ausführen möchte.
+Die Auswertung der Return Codes kann auf unterschiedlich Art geschehen.
+Die zwei häufigsten Muster sind verschachtelte if-Anweisungen und _Early Returns_.
+Verschachtelte if-Anweisungen skalieren schlecht mit dem Ablauf, den man in einem Block ausführen möchte.
 Die Verschachtelungstiefe nimmt mit jedem zusätzlichen Schritt zu.
 
 ```cpp
 <code with early returns>
 ```
+Abb. 2: Return Codes und _Early Returns_
 
-> warum early return, no nesting, used in golang
+In der Sprache Go sind _Early Returns_ das Standardvorgehen, um Fehler auszuwerten.
+Die if-Anweisungen zwischen den einzelnen Schritten unterbrechen leider zum Nachteil der Lesbarkeit den ursprünglichen Ablauf.
 
-> should I add the exceptions code example as well ?
+```cpp
+<code with early returns>
+```
+Abb. 3: Das Beispiel unter Verwendung von Exceptions
 
 Werden Exceptions verwendet, so bleibt der Ablauf kompakt und übersichtlich.
 Oftmals werden Exceptions aber in Embedded Software vermieden, machmal zu Recht, machmal zu Unrecht.
 
-
-> should I discusss these different cases of error handling?
-> - Fehler zurückliefern (-> sensor::read())
-> - Fehler propagieren (-> water_plant)
-> - Fehler auswerten (-> main)
-
-
 ### Ein Blick über den Zaun
 
-Die Behandlung von Seiteneffekten ist in Haskell auf elegante Art und Weise gelöst.
+Die Behandlung von Seiteneffekten ist in der Programmiersprache Haskell auf elegante Art und Weise gelöst.
 Das erwähnte Beispiel könnte in Haskell folgendermassen aussehen:
 
 ```haskell
 <mit maybe>
 ```
-> Abb N : ...
+Abb. 4: beispielhafte Implementierung in Haskell
 
 Der Code wird nicht durch die Fehlerbehandlung gestört.
-Aber es ist trotzdem klar, dass hier Seiteneffekte behandelt werden.
-Das Maybe Volume in der Funktionssignatur zeigt, dass die Funktion vielleicht einen Wert zurückgibt.
-Vielleicht kommt jedoch nichts zurück, das `Maybe Volume` hat den Wert `Nothing`.
-Das do heisst, dass die in der Funktion aufgerufenen Funktionen vielleicht auch nichts zurückgeben.
-Sobald die erste innere Funktion nichts zurückliefert, werden die nachfolgende Aufrufe nicht mehr getätigt, und die Funktion gibt `Nothing` zurück.
+Es ist aber trotzdem klar, dass hier Seiteneffekte behandelt werden.
+Das `Maybe Volume` in der Funktionssignatur signalisiert, dass die Funktion nur _vielleicht_ einen Wert zurück gibt.
+Der Rückgabewert kann entweder `Just <volume>` oder `Nothing` sein.
 
-Wenn nicht nur mitgeteilt werden sollte, dass ein Fehler aufgetreten ist, sondern auch Informationen zum Fehler,
-dann kann der abstrakte Datentyp `Either` verwendet werden.
-Ein `Either` hat entweder den Wert `Right` oder `Left`. Ist der Wert ein `Left`, handelt es sich um einen Fehler.
+Das `do` bedeutet, dass die in der Funktion aufgerufenen Funktionen vielleicht auch nichts zurückgeben.
+Sobald die erste innere Funktion nichts zurück liefert, werden die nachfolgende Aufrufe nicht mehr getätigt, und die Funktion gibt `Nothing` zurück.
+
+Wenn zusätzlich zum Auftreten eines Fehler auch Informationen zum Fehler mitgeteilt werden sollten, kann der abstrakte Datentyp `Either` verwendet werden.
+Ein `Either` hat entweder den Wert `Right <value>` oder `Left <error>`.
+Ist der Wert ein `Left`, handelt es sich um einen Fehler.
 
 ```haskell
 <mit either>
 ```
-> Abb N : ...
+Abb. 5: `Either` anstelle von `Maybe`
 
-Der `do`-Block verhält sich gleich wie diejenige mit Maybe, im Fehlerfall einfach ein `Left` zurückgegeben,
-welches den Fehler enthält.
-
-
-### Rust
+### Einfluss von Haskell auf andere Programmiersprachen
 
 In der noch jungen Programmiersprache Rust werden die beiden Typen `Option` und `Result` verwendet, um Fehler zu melden.
-Das `Option` entspricht in etwa dem `Maybe` aus Haskell, `Result` dem `Either`.
-Sie sind ein wesentlicher Bestandteil der Sprache und werden auch in der Rust Standard Library <heisst das so?> verwendet.
-Deshalb bietet Rust auch Sprachefeatures <in german?> zu deren Anwendung an.
+Sie können mit `Maybe` und `Either` aus Haskell verglichen werden.
+Ausserdem enthält Rust Spracheigenschaften, die bei deren Anwendung hilfreiche Unterstützung anbieten.
 Zum Beispiel das Statement `match` oder Operator ?.
 
-
 ```rust
-<read_sensor>
-```
-Abb N : Funktion die ein Result zurückgibt.
+fn read_moisture() -> Result<Moisture, String> {
+  // ...
+}
 
-```rust
-<water_plant>
-```
-Abb N : Mit dem ?-Operator ist der Code schon fast so Elegant wie in Haskell.
+fn water_plant() -> Result<Volume, String> {
+    let moisture = read_moisture()?;
+    let temperature = read_temperature()?;
+    let amount = calculate_amount(moisture, temperature);
+    pump(&amount)?;
+    Ok(amount)
+}
 
-```rust
-<main>
+fn main() {
+    match water_plant() {
+        Err(e) => println!("{}", e),
+        Ok(amount) => println!("Water {:?} ml", amount.ml),
+    }
+}
 ```
-> Abb N : Mit `match` kann ...
+Abb. 6: exemplarische Implementation in Rust
 
-Das `match` ist dem Pattern Matching von Haskell nachempfunden, wenn auch nicht so mächtig.
+Das `match` ist eine vereinfachte Form von dem, was man in Haskell als Pattern Matching kennt.
 Es ist darauf abgestimmt, mit Typen wie `Result` umzugehen.
 
 ### std::optional
@@ -165,26 +158,24 @@ Result<Volume> WateringSystem::water() { ... }
 
 Das Weiterleiten von Fehlern erfolgt zwar immer noch manuell, aber aus den Funktions- und Methodensignaturen,
 lässt sich viel leichter ablesen, wie das Verhalten ist, als wenn zum Beispiel Outputparamater und Returncodes verwendet werden.
-Natürlich ist es denkbar, das man die Funktionsweise eines Haskell `do`-Blocks oder dem Operator ? aus Rust nachzubilden versucht.
+Natürlich ist es denkbar, das man die Funktionsweise eines Haskell `do`-Blocks oder dem Operator `?` aus Rust nachzubilden versucht.
 Man wird dabei aber kaum darum herum kommen, dass Funktionsaufrufe in einem Block in Form von Funktionsobjekten benötigt werden.
 Das heisst wiederum, dass diese zusätzlich eingepackt werden müssen, beispielsweise mit Lambda-Ausdrücken oder std::bind.
 
 ### Zusammenfassung
 
-Funktionale Programmiersprachen, wie zum Beispiel Haskell bieten interessante Möglichkeiten für des Errorhandling an.
-Entstanden ist dies vorallem aus einer Notwendigkeit heraus.
-Denn auch funktionale Sprachen müssen mit Seiteneffekten umgehen können.
-Die Eleganz, mit dem das gelöst wurde, hat dazu geführt, dass Merkmale von funktionalen Sprachen, vermehrt auch in konventionelle und etablierte Sprachen einfliessen.
+Funktionale Programmiersprachen, wie zum Beispiel Haskell bieten interessante Möglichkeiten zur Fehlerbehandlung an.
+Entstanden ist dies vor allem aus einer Notwendigkeit heraus, denn auch funktionale Sprachen müssen mit Seiteneffekten umgehen können.
+Die Eleganz, mit der dieses Problem gelöst wurde, hat dazu geführt, dass Merkmale von funktionalen Sprachen vermehrt auch in konventionelle und etablierte Sprachen einfliessen.
 
-Die beiden Templateklassen std::optional und std::variant aus C++17 sind ein gutes Hilfsmittel,
-um Funktionen sprechender zu gestalten.
-Mit dem vermeiden von Outputparameter kommen Fragen nach der Gültigkeit oder dem Zustand im Fehlerfall erst gar nicht auf.
-
-
+Die beiden Templateklassen `std::optional` und `std::variant` aus C++17 sind ein gutes Hilfsmittel, um Funktionen sprechender zu gestalten.
+Durch das Vermeiden von Ausgabeparametern kommen Fragen nach deren Gültigkeit oder Zustand im Fehlerfall erst gar nicht auf.
 
 ### Literatur- und Quellenverzeichnis
 
-[1] Learn You a Haskell for Great Good, ...
+[1] Learn You a Haskell for Great Good!, Miran Lipovača
+[2] https://golang.org/
+[3] https://www.rust-lang.org/
 
 ### Autor
 
@@ -193,5 +184,5 @@ Raphael Meyer ist Software-Ingenieur mit über zehn Jahren Erfahrung in der Ger�
 [!me.png]
 
 ### Kontakt
-Internet: [bbv.ch](https://www.bbv.ch/)
-Email: [raphael.meyer@bbv.ch](mailto:raphael.meyer@bbv.ch)
+* Internet: [bbv.ch](https://www.bbv.ch/)
+* Email: [raphael.meyer@bbv.ch](mailto:raphael.meyer@bbv.ch)
