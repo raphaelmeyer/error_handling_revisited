@@ -35,7 +35,22 @@ Wir haben ein einfaches Gerät zum automatischen Bewässern einer Topfpflanze.
 Aufgrund der Umgebungstemperatur und der Feuchtigkeit im Topf soll jeweils entschieden werden, wie viel Wasser in den Topf gepumpt wird.
 
 ```cpp
-<code nested if>
+bool MoistureSensor::read(Moisture & moisture) { /* ... */ }
+// ...
+
+bool WateringSystem::water(Volume & amount) {
+  Moisture moisture;
+  if(moisture_sensor.read(moisture)) {
+    Temperature temperature;
+    if(thermo_sensor.read(temperature)) {
+      amount = calculate_amount(moisture, temperature);
+      if(pump.pump(amount)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
 ```
 Abb. 1: Return Codes und verschachtelte if-Anweisungen
 
@@ -45,7 +60,24 @@ Verschachtelte if-Anweisungen skalieren schlecht mit dem Ablauf, den man in eine
 Die Verschachtelungstiefe nimmt mit jedem zusätzlichen Schritt zu.
 
 ```cpp
-<code with early returns>
+bool MoistureSensor::read(Moisture & moisture) { /* ... */ }
+// ...
+
+bool WateringSystem::water(Volume & amount) {
+  Moisture moisture;
+  if(not moisture_sensor.read(moisture)) {
+    return false;
+  }
+  Temperature temperature;
+  if(not thermo_sensor.read(temperature)) {
+    return false;
+  }
+  amount = calculate_amount(moisture, temperature);
+  if(not pump.pump(amount)) {
+    return false;
+  }
+  return true;
+}
 ```
 Abb. 2: Return Codes und _Early Returns_
 
@@ -53,12 +85,22 @@ In der Sprache Go sind _Early Returns_ das Standardvorgehen, um Fehler auszuwert
 Die if-Anweisungen zwischen den einzelnen Schritten unterbrechen leider zum Nachteil der Lesbarkeit den ursprünglichen Ablauf.
 
 ```cpp
-<code with early returns>
+Volume WateringSystem::water() {
+  try {
+    auto const moisture = moisture_sensor.read();
+    auto const temperature = thermo_sensor.read();
+    auto const amount = calculate_amount(moisture, temperature);
+    pump.pump(amount);
+    return amount;
+  } catch(std::exception const &) {
+    // ...
+  }
+}
 ```
 Abb. 3: Das Beispiel unter Verwendung von Exceptions
 
 Werden Exceptions verwendet, so bleibt der Ablauf kompakt und übersichtlich.
-Oftmals werden Exceptions aber in Embedded Software vermieden, machmal zu Recht, machmal zu Unrecht.
+In der Embedded Softwareentwicklung werden Exceptions aus verschiedenen Gründen vielfach vermieden, oftmals jedoch ungerechtfertigt.
 
 ### Ein Blick über den Zaun
 
@@ -66,7 +108,16 @@ Die Behandlung von Seiteneffekten ist in der Programmiersprache Haskell auf eleg
 Das erwähnte Beispiel könnte in Haskell folgendermassen aussehen:
 
 ```haskell
-<mit maybe>
+readMoisture :: Maybe Moisture
+-- ...
+
+waterPlant :: Maybe Volume
+waterPlant = do
+  moisture <- readMoisture
+  temperature <- readTemperature
+  amount <- calculateAmount moisture temperature
+  pump amount
+  return amount
 ```
 Abb. 4: beispielhafte Implementierung in Haskell
 
@@ -81,11 +132,6 @@ Sobald die erste innere Funktion nichts zurück liefert, werden die nachfolgende
 Wenn zusätzlich zum Auftreten eines Fehler auch Informationen zum Fehler mitgeteilt werden sollten, kann der abstrakte Datentyp `Either` verwendet werden.
 Ein `Either` hat entweder den Wert `Right <value>` oder `Left <error>`.
 Ist der Wert ein `Left`, handelt es sich um einen Fehler.
-
-```haskell
-<mit either>
-```
-Abb. 5: `Either` anstelle von `Maybe`
 
 ### Einfluss von Haskell auf andere Programmiersprachen
 
@@ -114,7 +160,7 @@ fn main() {
     }
 }
 ```
-Abb. 6: exemplarische Implementation in Rust
+Abb. 5: exemplarische Implementation in Rust
 
 Das `match` ist eine vereinfachte Form von dem, was man in Haskell als Pattern Matching kennt.
 Es ist darauf abgestimmt, mit Typen wie `Result` umzugehen.
@@ -125,9 +171,26 @@ Mit C++17 wurde die Klasse std::optional in die Standard Library aufgenommen.
 Sie kann als C++ Variante von `Maybe` angesehen werden.
 
 ```cpp
-<code mit std::optional, aber was?>
+std::optional<Moisture> MoistureSensor::read() { /* ... */ }
+// ...
+
+std::optional<Volume> WateringSystem::water() {
+  auto const moisture = moisture_sensor.read();
+  if (not moisture) {
+    return std::nullopt;
+  }
+  auto const temperature = thermo_sensor.read();
+  if (not temperature) {
+    return std::nullopt;
+  }
+  auto const amount = calculate_amount(moisture.value(), temperature.value());
+  if (not pump.pump(amount)) {
+    return std::nullopt;
+  }
+  return amount;
+}
 ```
-> Abb : ...
+> Abb 6: Verwendung von std::optional
 
 Das std::optional eignet sich ...
 > std::optional -> no invalid output param in case of error
@@ -139,25 +202,72 @@ Eine weitere Templateklasse, welche mit C++17 dazugekommen ist, ist das std::var
 Damit lassen sich Typen wie ein `Maybe` aus Haskell oder ein `Result` aus Rust nachbilden.
 
 ```cpp
-<nur ein aufruf as water(), um zu zeigen, dass std::variant etwas umständlich sein kann>
+std::variant<Moisture, Error> MoistureSensor::read() { /* ... */ }
+// ...
+
+std::variant<Volume, Error> WateringSystem::water() {
+  auto const moisture = moisture_sensor.read();
+  if(auto const error = std::get_if<Error>(&moisture); error) {
+    return *error;
+  }
+
+  // ...
+}
 ```
-Abb N : ...
+Abb. 7: direkte Verwendung von std::variant
 
 Verwendet man std::variant direkt, um ein Result zu imitieren, so ist dessen Verwendung zuweilen etwas umständlich.
 Dies rührt unter anderem daher, dass Templateklassen aus der Standard Library möglichst allgemein gehalten werden, damit Erweiterungen in alle Richtungen möglich sind.
 
-Mit einem einfachen Wrapper um std::variant, kann man die lesbarkeit des Code aber stark erhöhen.
+Mit einem einfachen Wrapper um std::variant, kann man die Lesbarkeit des Code aber stark erhöhen.
 
 ```cpp
-template<typename ...> class Result { ... }
+template<typename Ok, typename Err>
+class Result {
+public:
+  Result(Ok const & value);
+  Result(Err const & value);
+
+  Ok const & ok() const;
+  Err const & err() const;
+
+  bool is_ok() const;
+  bool is_err() const;
+
+private:
+  struct ok_t { Ok value; };
+  struct err_t { Err value; };
+  std::variant<ok_t, err_t> _value;
+};
 ```
+Abb. 8: eine einfache Implementation von `Result`
 
 ```cpp
-Result<Volume> WateringSystem::water() { ... }
-```
+Result<Moisture, Error> MoistureSensor::read() { /* ... */ }
+// ...
 
-Das Weiterleiten von Fehlern erfolgt zwar immer noch manuell, aber aus den Funktions- und Methodensignaturen,
-lässt sich viel leichter ablesen, wie das Verhalten ist, als wenn zum Beispiel Outputparamater und Returncodes verwendet werden.
+Result<Volume, Error> WateringSystem::water() {
+  auto const moisture = moisture_sensor.read();
+  if(moisture.is_err()) {
+    return moisture.err();
+  }
+  auto const temperature = thermo_sensor.read();
+  if(temperature.is_err()) {
+    return temperature.err();
+  }
+  auto const amount = calculate_amount(moisture.ok(), temperature.ok());
+  auto const pump_result = pump.pump(amount);
+  if(pump_result.is_err()) {
+    return pump_result.err();
+  }
+  return amount;
+}
+```
+Abb. 9: Anwendungsbeispiel mit der eigenen Klasse `Result`
+
+Das Weiterleiten von Fehlern erfolgt zwar immer noch manuell, aber aus den Funktions- und Methodensignaturen lässt sich viel leichter ablesen, wie das Verhalten ist, als wenn zum Beispiel Outputparamater und Returncodes verwendet werden.
+> very bad german
+
 Natürlich ist es denkbar, das man die Funktionsweise eines Haskell `do`-Blocks oder dem Operator `?` aus Rust nachzubilden versucht.
 Man wird dabei aber kaum darum herum kommen, dass Funktionsaufrufe in einem Block in Form von Funktionsobjekten benötigt werden.
 Das heisst wiederum, dass diese zusätzlich eingepackt werden müssen, beispielsweise mit Lambda-Ausdrücken oder std::bind.
