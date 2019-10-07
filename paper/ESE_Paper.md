@@ -5,15 +5,14 @@
 Raphael Meyer, bbv Software Services AG
 
 **Die Behandlung von Fehlern und Ausnahmesituationen ist nicht nur ein wichtiger Teil jeder Software, sondern oft auch sehr umfangreich.
-Gerade bei Embedded-Software, welche von der Interaktion mit Hardware geprägt ist, ist eine sorgfältige Fehlerbehandlung für den einwandfreien Betrieb der entwickelten Geräte unabdingbar.**
-
-**Funktionale Programmiersprachen bieten hier interessante Konzepte, welche nicht ganz neu sind, in letzter Zeit aber vermehrt wiederentdeckt werden.
+Gerade bei Embedded-Software, welche von der Interaktion mit Hardware geprägt ist, ist eine sorgfältige Fehlerbehandlung für den einwandfreien Betrieb der entwickelten Geräte unabdingbar.
+Funktionale Programmiersprachen bieten hier interessante Konzepte, welche nicht ganz neu sind, in letzter Zeit aber vermehrt wiederentdeckt werden.
 Die beiden in C++17 dazu gestossenen Templateklassen `std::optional` und `std::variant` können helfen, die Signaturen von Funktionen und Methoden sprechender zu gestalten.**
 
 In der Softwareentwicklung gibt es unterschiedliche Typen von Fehlern.
 Wir konzentrieren uns hier auf Interaktionen mit der Aussenwelt, die nicht zum gewünschten Ergebnis führen.
 Zum Beispiel die Bewegung eines Motors, die nicht zu Ende geführt werden kann.
-Mit anderen Worten ausgedrückt sprechen wir von Funktionen mit Seiteneffekten.
+Mit anderen Worten sprechen wir von Funktionen mit Seiteneffekten, die nicht erfolgreich ausgeführt werden konnten.
 
 ### Wie können Fehler kommuniziert werden?
 
@@ -26,6 +25,11 @@ Verwendet eine Funktion _Return Codes_, so muss ein allfälliger Rückgabewert a
 Ausgabeparameter können beispielsweise mit Referenzen oder (intelligenten) Zeigern implementiert werden.
 Der Nachteil ist, dass deren Absicht ohne zusätzliche Dokumentation oftmals nicht ersichtlich ist.
 Es tauchen Fragen zu den Besitzverhältnissen auf und es braucht weitere Erklärungen zum Zustand oder zur Gültigkeit eines Ausgabeparameters im Fehlerfall.
+
+Die Auswertung von Return Codes kann auf unterschiedliche Art geschehen.
+Die zwei häufigsten Muster sind verschachtelte if-Anweisungen und _Early Returns_.
+Verschachtelte if-Anweisungen skalieren schlecht mit dem Ablauf, den man in einem Block ausführen möchte.
+Die Verschachtelungstiefe nimmt mit jedem zusätzlichen Schritt zu.
 
 Betrachten wir zur Veranschaulichung ein einfaches Beispiel.
 Wir haben ein einfaches Gerät zum automatischen Bewässern einer Topfpflanze.
@@ -50,11 +54,6 @@ bool WateringSystem::water(Volume & amount) {
 }
 ```
 Abb. 1: Return Codes und verschachtelte if-Anweisungen
-
-Die Auswertung von Return Codes kann auf unterschiedliche Art geschehen.
-Die zwei häufigsten Muster sind verschachtelte if-Anweisungen und _Early Returns_.
-Verschachtelte if-Anweisungen skalieren schlecht mit dem Ablauf, den man in einem Block ausführen möchte.
-Die Verschachtelungstiefe nimmt mit jedem zusätzlichen Schritt zu.
 
 Beim _Early Return_ unterbrechen die if-Anweisungen zwischen den einzelnen Schritten leider den ursprünglichen Ablauf, und wirken sich nachteilig auf die Lesbarkeit aus.
 Ein prominentes Beispiel für _Early Return_ ist die Programmiersprache Go.
@@ -83,6 +82,7 @@ bool WateringSystem::water(Volume & amount) {
 Abb. 2: Return Codes und _Early Returns_
 
 Werden Exceptions verwendet, so bleibt der eigentliche Ablauf kompakt und übersichtlich.
+Die Ausgabeparameter entfallen ebenso.
 In der Embedded Softwareentwicklung werden Exceptions jedoch aus verschiedenen Gründen vielfach vermieden, manchmal auch ungerechtfertigt.
 
 ```cpp
@@ -119,19 +119,17 @@ waterPlant = do
 ```
 Abb. 4: beispielhafte Implementierung in Haskell
 
-Der Code wird nicht durch die Fehlerbehandlung gestört.
+Der Code wird durch die Fehlerbehandlung nicht gestört.
 Es ist aber trotzdem klar, dass hier Seiteneffekte behandelt werden.
 Das `Maybe Volume` in der Funktionssignatur signalisiert, dass die Funktion nur _vielleicht_ einen Wert zurück gibt.
 Der Rückgabewert kann entweder `Just <volume>` oder `Nothing` sein.
 
-Das `do` bedeutet, dass die in der Funktion aufgerufenen Funktionen vielleicht auch nichts zurückgeben.
-Sobald die erste innere Funktion nichts zurück liefert, werden die nachfolgende Aufrufe nicht mehr getätigt, und die Funktion gibt `Nothing` zurück.
+Die Anweisung `do` bedeutet, dass die darin aufgerufenen Funktionen vielleicht auch nichts zurückgeben.
+Sobald die erste innere Funktion nichts zurückliefert, werden die nachfolgende Aufrufe nicht mehr getätigt, und die Funktion gibt `Nothing` zurück.
 
 Wenn zusätzlich zum Auftreten eines Fehler auch Informationen zum Fehler mitgeteilt werden sollten, kann der abstrakte Datentyp `Either` verwendet werden.
 Ein `Either` hat entweder den Wert `Right <value>` oder `Left <error>`.
 Ist der Wert ein `Left`, handelt es sich um einen Fehler.
-
-### Einfluss von Haskell auf andere Programmiersprachen
 
 In der noch jungen Programmiersprache Rust werden die beiden Typen `Option` und `Result` verwendet, um Fehler zu melden.
 Sie können mit `Maybe` und `Either` aus Haskell verglichen werden.
@@ -168,6 +166,9 @@ Es ist darauf abgestimmt, mit Typen wie `Result` umzugehen.
 Mit C++17 wurde die Klasse `std::optional` in die Standard Library aufgenommen.
 Sie kann als C++ Variante von `Maybe` angesehen werden.
 
+Mit `std::optional` muss ein Rückgabewert nicht mehr als Ausgabeparameter definiert werden.
+Das Verhalten einer Funktion lässt sich so einfacher aus der Signatur ableiten, als bei einer Implementation mit Return Code und Ausgabeparameter.
+
 ```cpp
 std::optional<Moisture> MoistureSensor::read() { /* ... */ }
 // ...
@@ -189,9 +190,6 @@ std::optional<Volume> WateringSystem::water() {
 }
 ```
 Abb 6: Verwendung von std::optional
-
-Mit `std::optional` muss ein Rückgabewert nicht mehr als Ausgabeparameter definiert werden.
-Das Verhalten einer Funktion lässt sich so einfacher aus der Signatur ableiten, als bei einer Implementation mit Return Code und Ausgabeparameter.
 
 `std::variant` ist eine weitere Templateklasse, welche mit C++17 neu dazugekommen ist.
 Damit lassen sich Typen wie ein `Either` aus Haskell oder ein `Result` aus Rust nachbilden.
@@ -264,7 +262,7 @@ Das Weiterleiten von Fehlern erfolgt zwar immer noch manuell mit if-Anweisungen,
 aber die Signaturen drücken die Absicht der Funktionen und Methoden besser aus.
 Der Code wird durch das Interface der Klasse `Result` klarer.
 
-Natürlich ist es denkbar, das man die Funktionsweise eines Haskell `do`-Blocks oder dem Operator `?` aus Rust nachzubilden versucht.
+Natürlich ist es denkbar, das man die Funktionsweise eines Haskell `do`-Blocks oder dem `?`-Operator aus Rust nachzubilden versucht.
 Man wird dabei aber kaum darum herum kommen, dass Funktionsaufrufe in Form von Funktionsobjekten benötigt werden.
 Das heisst wiederum, dass diese zusätzlich eingepackt werden müssen, beispielsweise mit Lambda-Ausdrücken oder `std::bind`.
 
@@ -279,15 +277,13 @@ Durch das Vermeiden von Ausgabeparametern kommen Fragen nach deren Gültigkeit o
 
 ### Literatur- und Quellenverzeichnis
 
-[1] Learn You a Haskell for Great Good!, Miran Lipovača
-[2] https://golang.org/
-[3] https://www.rust-lang.org/
+* [1] Learn You a Haskell for Great Good!, Miran Lipovača
+* [2] https://golang.org/
+* [3] https://www.rust-lang.org/
 
 ### Autor
 
 Raphael Meyer ist Software-Ingenieur mit über zehn Jahren Erfahrung in der Geräteentwicklung. Er interessiert sich stark für Themen in der Software-Entwicklung, die dazu beitragen qualitativ hochstehende Produkte zu entwickeln. Deshalb ist er auch in der Software Crafters Community aktiv. Ausserdem ist Raphael Meyer ein Organisator der C++ Usergroup Zentralschweiz.
-
-[!me.png]
 
 ### Kontakt
 * Internet: [bbv.ch](https://www.bbv.ch/)
