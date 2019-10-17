@@ -2,59 +2,49 @@
 #include <iostream>
 
 template<typename Ok, typename Err>
+auto make_ok(Ok && value);
+
+template<typename Ok, typename Err>
+auto make_err(Err && value);
+
+template<typename Ok, typename Err>
 class Result {
 public:
-  Result(Ok && value);
-  Result(Err && value);
+  Result(Ok && value) : _value{ok_t{std::move(value)}} {}
+  Result(Err && value) : _value{err_t{std::move(value)}} {}
 
-  Result(Ok const & value);
-  Result(Err const & value);
+  Result(Ok const & value) : _value{ok_t{value}} {}
+  Result(Err const & value) : _value{err_t{value}} {}
 
-  Ok const & ok() const;
-  Err const & err() const;
+  Ok const & ok() const { return std::get<ok_t>(_value).value; }
+  Err const & err() const { return std::get<err_t>(_value).value; }
 
-  bool is_ok() const;
-  bool is_err() const;
+  bool is_ok() const { return std::holds_alternative<ok_t>(_value); }
+  bool is_err() const { return std::holds_alternative<err_t>(_value); }
 
 private:
   struct ok_t { Ok value; };
   struct err_t { Err value; };
+  using value_t = std::variant<ok_t, err_t>;
 
-  std::variant<ok_t, err_t> _value;
+  value_t _value;
+
+  Result(ok_t && value) : _value{std::move(value)} {}
+  Result(err_t && value) : _value{std::move(value)} {}
+
+  friend auto make_ok<Ok, Err>(Ok && value);
+  friend auto make_err<Ok, Err>(Err && value);
 };
 
 template<typename Ok, typename Err>
-Result<Ok, Err>::Result(Ok && value) : _value{ok_t{std::move(value)}} {}
-
-template<typename Ok, typename Err>
-Result<Ok, Err>::Result(Err && value) : _value{err_t{std::move(value)}} {}
-
-template<typename Ok, typename Err>
-Result<Ok, Err>::Result(Ok const & value) : _value{ok_t{value}} {}
-
-template<typename Ok, typename Err>
-Result<Ok, Err>::Result(Err const & value) : _value{err_t{value}} {}
-
-template<typename Ok, typename Err>
-Ok const & Result<Ok, Err>::ok() const {
-  return std::get<ok_t>(_value).value;
+auto make_ok(Ok && value) {
+  return Result<Ok, Err>{typename Result<Ok, Err>::ok_t{value}};
 }
 
 template<typename Ok, typename Err>
-Err const & Result<Ok, Err>::err() const {
-  return std::get<err_t>(_value).value;
+auto make_err(Err && value) {
+  return Result<Ok, Err>{typename Result<Ok, Err>::err_t{value}};
 }
-
-template<typename Ok, typename Err>
-bool Result<Ok, Err>::is_ok() const {
-  return std::holds_alternative<ok_t>(_value);
-}
-
-template<typename Ok, typename Err>
-bool Result<Ok, Err>::is_err() const {
-  return std::holds_alternative<err_t>(_value);
-}
-
 
 struct Volume { int ml; };
 struct Moisture {};
