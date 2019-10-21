@@ -1,49 +1,49 @@
 #include <variant>
 #include <iostream>
 
-template<typename Ok, typename Err>
-auto make_ok(Ok && value);
+template<typename OkType, typename ErrType>
+auto make_ok(OkType value);
 
-template<typename Ok, typename Err>
-auto make_err(Err && value);
+template<typename OkType, typename ErrType>
+auto make_err(ErrType value);
 
-template<typename Ok, typename Err>
-class Result {
+template<typename OkType, typename ErrType>
+class Result
+{
 public:
-  Result(Ok && value) : _value{ok_t{std::move(value)}} {}
-  Result(Err && value) : _value{err_t{std::move(value)}} {}
+  Result() = default;
 
-  Result(Ok const & value) : _value{ok_t{value}} {}
-  Result(Err const & value) : _value{err_t{value}} {}
+  template<typename T, typename std::enable_if<
+    std::is_convertible<T, std::variant<ErrType, OkType>>{}, int>::type = 0>
+  Result(T && value) : _value{std::forward<T>(value)} {}
 
-  Ok const & ok() const { return std::get<ok_t>(_value).value; }
-  Err const & err() const { return std::get<err_t>(_value).value; }
+  ErrType const & err() const { return std::get<err_index>(_value); }
+  OkType const & ok() const { return std::get<ok_index>(_value); }
 
-  bool is_ok() const { return std::holds_alternative<ok_t>(_value); }
-  bool is_err() const { return std::holds_alternative<err_t>(_value); }
+  bool is_err() const { return _value.index() == err_index; }
+  bool is_ok() const { return _value.index() == ok_index; }
 
 private:
-  struct ok_t { Ok value; };
-  struct err_t { Err value; };
-  using value_t = std::variant<ok_t, err_t>;
+  constexpr static std::size_t const err_index = 0;
+  constexpr static std::size_t const ok_index = 1;
+  std::variant<ErrType, OkType> _value;
 
-  value_t _value;
+  Result(std::variant<ErrType, OkType> value) : _value{std::move(value)} {}
 
-  Result(ok_t && value) : _value{std::move(value)} {}
-  Result(err_t && value) : _value{std::move(value)} {}
-
-  friend auto make_ok<Ok, Err>(Ok && value);
-  friend auto make_err<Ok, Err>(Err && value);
+  friend auto make_ok<OkType, ErrType>(OkType value);
+  friend auto make_err<OkType, ErrType>(ErrType value);
 };
 
-template<typename Ok, typename Err>
-auto make_ok(Ok && value) {
-  return Result<Ok, Err>{typename Result<Ok, Err>::ok_t{value}};
+template<typename OkType, typename ErrType>
+auto make_ok(OkType value) {
+  using T = Result<OkType, ErrType>;
+  return T{std::variant<ErrType, OkType>{std::in_place_index<T::ok_index>, std::move(value)}};
 }
 
-template<typename Ok, typename Err>
-auto make_err(Err && value) {
-  return Result<Ok, Err>{typename Result<Ok, Err>::err_t{value}};
+template<typename OkType, typename ErrType>
+auto make_err(ErrType value) {
+  using T = Result<OkType, ErrType>;
+  return T{std::variant<ErrType, OkType>{std::in_place_index<T::err_index>, std::move(value)}};
 }
 
 struct Volume { int ml; };

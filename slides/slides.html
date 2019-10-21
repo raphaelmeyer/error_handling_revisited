@@ -950,55 +950,50 @@ class: center, middle
 class: middle
 
 ```cpp
-template<typename Ok, typename Err>
-class Result {
+template<typename OkType, typename ErrType>
+class Result
+{
 public:
-  Result(Ok && value);
-  Result(Err && value);
+  Result() = default;
 
-  Result(Ok const & value);
-  Result(Err const & value);
+  template<typename T, typename std::enable_if<
+    std::is_convertible<T, std::variant<ErrType, OkType>>{}, int>::type = 0>
+  Result(T && value) : _value{std::forward<T>(value)} {}
 
-  Ok const & ok() const;
-  Err const & err() const;
+  ErrType const & err() const { return std::get<err_index>(_value); }
+  OkType const & ok() const { return std::get<ok_index>(_value); }
 
-  bool is_ok() const;
-  bool is_err() const;
+  bool is_err() const { return _value.index() == err_index; }
+  bool is_ok() const { return _value.index() == ok_index; }
 
 private:
-  struct ok_t { Ok value; };
-  struct err_t { Err value; };
+  constexpr static std::size_t const err_index = 0;
+  constexpr static std::size_t const ok_index = 1;
+  std::variant<ErrType, OkType> _value;
 
-  std::variant<ok_t, err_t> _value;
+  Result(std::variant<ErrType, OkType> value) : _value{std::move(value)} {}
+
+  friend auto make_ok<OkType, ErrType>(OkType value);
+  friend auto make_err<OkType, ErrType>(ErrType value);
 };
 ```
-
-.footnote[🚧 Work in Progress - make_ok, make_err -> e.g. Result<int, int>]
 
 ---
 class: middle
 
 ```cpp
-template<typename Ok, typename Err>
-Result<Ok, Err>::Result(Ok && value) : _value{ok_t{std::move(value)}} {}
-
-template<typename Ok, typename Err>
-Result<Ok, Err>::Result(Ok const & value) : _value{ok_t{value}} {}
-
-template<typename Ok, typename Err>
-Ok const & Result<Ok, Err>::ok() const {
-  return std::get<ok_t>(_value).value;
+template<typename OkType, typename ErrType>
+auto make_ok(OkType value) {
+  using T = Result<OkType, ErrType>;
+  return T{std::variant<ErrType, OkType>{std::in_place_index<T::ok_index>, std::move(value)}};
 }
 
-template<typename Ok, typename Err>
-bool Result<Ok, Err>::is_ok() const {
-  return std::holds_alternative<ok_t>(_value);
+template<typename OkType, typename ErrType>
+auto make_err(ErrType value) {
+  using T = Result<OkType, ErrType>;
+  return T{std::variant<ErrType, OkType>{std::in_place_index<T::err_index>, std::move(value)}};
 }
-
-// ...
 ```
-
-.footnote[🚧 Work in Progress]
 
 ---
 class: middle
