@@ -1,15 +1,24 @@
-class Volume {};
-class Moisture {};
-class Temperature {};
+#include <iostream>
+
+struct Volume { int ml; };
+struct Moisture { int percentage; };
+struct Temperature { double celsius; };
 
 class ThermoSensor {
 public:
-  bool read(Temperature &) { return true; }
+  bool read(Temperature & temperature) {
+    temperature.celsius = 21.5;
+    return true;
+  }
 };
 
 class MoistureSensor {
 public:
-  bool read(Moisture &) { return true; }
+  bool read(Moisture & moisture) {
+    moisture.percentage = 40;
+    // return false;
+    return true;
+  }
 };
 
 class Pump {
@@ -21,23 +30,26 @@ class WateringSystem {
 public:
   bool water(Volume & amount) {
     Moisture moisture;
-    if (not moisture_sensor.read(moisture)) {
+    if(not moisture_sensor.read(moisture)) {
       return false;
     }
     Temperature temperature;
-    if (not thermo_sensor.read(temperature)) {
+    if(not thermo_sensor.read(temperature)) {
       return false;
     }
-    amount = calculate_amount(moisture, temperature);
-    if (not pump.pump(amount)) {
+    if(not calculate_amount(moisture, temperature, amount)) {
+      return false;
+    }
+    if(not pump.pump(amount)) {
       return false;
     }
     return true;
   }
 
 private:
-  Volume calculate_amount(Moisture moisture, Temperature temperature) {
-    return {};
+  bool calculate_amount(Moisture moisture, Temperature temperature, Volume & amount) {
+    amount.ml = 178;
+    return true;
   }
 
   MoistureSensor moisture_sensor;
@@ -46,7 +58,10 @@ private:
 };
 
 int main() {
-  WateringSystem system;
   Volume amount;
-  system.water(amount);
+  if(WateringSystem{}.water(amount)) {
+    std::cout << "Water " << amount.ml << " ml\n";
+  } else {
+    std::cout << "Watering error\n";
+  }
 }

@@ -1,15 +1,17 @@
-class Volume {};
-class Moisture {};
-class Temperature {};
+#include <iostream>
+
+struct Volume { int ml; };
+struct Moisture { int percentage; };
+struct Temperature { double celsius; };
 
 class ThermoSensor {
 public:
-  Temperature read() { return {}; }
+  Temperature read() { return Temperature{21.5}; }
 };
 
 class MoistureSensor {
 public:
-  Moisture read() { return {}; }
+  Moisture read() { return Moisture{40}; }
 };
 
 class Pump {
@@ -29,7 +31,7 @@ public:
 
 private:
   Volume calculate_amount(Moisture moisture, Temperature temperature) {
-    return {};
+    return Volume{178};
   }
 
   MoistureSensor moisture_sensor;
@@ -38,6 +40,6 @@ private:
 };
 
 int main() {
-  WateringSystem system;
-  system.water();
+  const auto amount = WateringSystem{}.water();
+  std::cout << "Water " << amount.ml << " ml\n";
 }
