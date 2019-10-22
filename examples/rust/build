@@ -1,5 +1,4 @@
 #/bin/bash
 
-rustc result.rs
-rustc result2.rs
-
+rustc --out-dir _build example01.rs
+rustc --out-dir _build example02.rs

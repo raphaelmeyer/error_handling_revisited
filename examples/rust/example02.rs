@@ -1,9 +1,9 @@
 struct Moisture {
-    percent: i32,
+    percentage: i32,
 }
 
 struct Temperature {
-    celsius: i32,
+    celsius: f64,
 }
 
 struct Volume {
@@ -11,27 +11,28 @@ struct Volume {
 }
 
 fn read_moisture() -> Result<Moisture, String> {
-    //Err(String::from("Moisture sensor error"))
-    Ok(Moisture{percent: 32})
+    // Err(String::from("Moisture sensor error"))
+    Ok(Moisture{percentage: 40})
 }
 
 fn read_temperature() -> Result<Temperature, String> {
-    //Err(String::from("Temperature sensor error"))
-    Ok(Temperature{celsius: 23})
+    // Err(String::from("Temperature sensor error"))
+    Ok(Temperature{celsius: 21.5})
 }
 
-fn calculate_amount(m: Moisture, t: Temperature) -> Volume {
-    Volume{ml: 42}
+fn calculate_amount(m: Moisture, t: Temperature) -> Result<Volume, String> {
+    Ok(Volume{ml: 178})
 }
 
 fn pump(v: &Volume) -> Result<(), String> {
+    // Err(String::from("Pump error"))
     Ok(())
 }
 
 fn water_plant() -> Result<Volume, String> {
     let moisture = read_moisture()?;
     let temperature = read_temperature()?;
-    let amount = calculate_amount(moisture, temperature);
+    let amount = calculate_amount(moisture, temperature)?;
     pump(&amount)?;
     Ok(amount)
 }
