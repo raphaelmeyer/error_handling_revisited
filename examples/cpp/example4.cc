@@ -47,9 +47,9 @@ public:
       auto const amount = calculate_amount(moisture, temperature);
       pump.pump(amount);
       return amount;
-    } catch (SensorError const & e) {
+    } catch(SensorError const & e) {
       throw WateringError{e.what()};
-    } catch (PumpError const & e) {
+    } catch(PumpError const & e) {
       throw WateringError{"Pump error"};
     }
   }

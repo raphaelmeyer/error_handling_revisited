@@ -30,18 +30,18 @@ class WateringSystem {
 public:
   std::optional<Volume> water() {
     auto const moisture = moisture_sensor.read();
-    if (not moisture) {
+    if(not moisture) {
       return std::nullopt;
     }
     auto const temperature = thermo_sensor.read();
-    if (not temperature) {
+    if(not temperature) {
       return std::nullopt;
     }
     auto const amount = calculate_amount(moisture.value(), temperature.value());
-    if (not amount) {
+    if(not amount) {
       return std::nullopt;
     }
-    if (not pump.pump(amount.value())) {
+    if(not pump.pump(amount.value())) {
       return std::nullopt;
     }
     return amount;
@@ -59,7 +59,7 @@ private:
 
 int main() {
   auto const amount = WateringSystem{}.water();
-  if (amount) {
+  if(amount) {
     std::cout << "Water " << amount.value().ml << " ml\n";
   } else {
     std::cout << "Watering error\n";
