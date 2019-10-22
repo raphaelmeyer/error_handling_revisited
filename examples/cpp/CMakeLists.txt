@@ -24,4 +24,5 @@ add_example(example7)
 add_example(example7b)
 add_example(example7c)
 add_example(example8)
-
+add_example(example9)
+add_example(example9b)
