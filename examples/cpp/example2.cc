@@ -8,6 +8,7 @@ class ThermoSensor {
 public:
   bool read(Temperature & temperature) {
     temperature.celsius = 21.5;
+    // return false;
     return true;
   }
 };
@@ -28,7 +29,7 @@ public:
 
 class WateringSystem {
 public:
-  bool water(Volume &amount) {
+  bool water(Volume & amount) {
     Moisture moisture;
     if(moisture_sensor.read(moisture)) {
       Temperature temperature;

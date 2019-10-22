@@ -6,12 +6,12 @@ struct Temperature { double celsius; };
 
 class ThermoSensor {
 public:
-  Temperature read() { return Temperature{21.5}; }
+  Temperature read() { return {21.5}; }
 };
 
 class MoistureSensor {
 public:
-  Moisture read() { return Moisture{40}; }
+  Moisture read() { return {40}; }
 };
 
 class Pump {
@@ -31,7 +31,7 @@ public:
 
 private:
   Volume calculate_amount(Moisture moisture, Temperature temperature) {
-    return Volume{178};
+    return {178};
   }
 
   MoistureSensor moisture_sensor;

@@ -8,6 +8,7 @@ class ThermoSensor {
 public:
   bool read(Temperature & temperature) {
     temperature.celsius = 21.5;
+    // return false;
     return true;
   }
 };
