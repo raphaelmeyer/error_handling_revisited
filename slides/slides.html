@@ -464,9 +464,25 @@ Nothing
 ```
 
 ---
+class: middle
+
+```haskell
+waterPlant :: Maybe Volume
+waterPlant =
+  readMoisture >>= (\ moisture ->
+    readTemperature >>= (\ temperature ->
+      calculateAmount moisture temperature >>= (\ amount ->
+        pump amount >> return amount )))
+```
+
+.footnote[🚧 Work in Progress]
+
+---
 class: center, middle
 
 # **`do`** notation
+
+.footnote[🚧 Work in Progress]
 
 ---
 class: middle
@@ -483,6 +499,8 @@ do
   b <- half a
   half b
 ```
+
+.footnote[🚧 Work in Progress - replace with watering]
 
 ---
 class: middle

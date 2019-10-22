@@ -1,5 +1,5 @@
 #!/bin/bash
 
-ghc -dynamic --make example.hs
-ghc -dynamic --make either.hs
-
+stack exec ghc -- -dynamic example01.hs
+stack exec ghc -- -dynamic example02.hs
+stack exec ghc -- -dynamic example03.hs
