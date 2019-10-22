@@ -23,7 +23,10 @@ public:
 
 class Pump {
 public:
-  bool pump(Volume amount) { return true; }
+  bool pump(Volume amount) {
+    // return false;
+    return true;
+  }
 };
 
 class WateringSystem {

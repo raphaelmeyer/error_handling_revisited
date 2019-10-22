@@ -1,5 +1,5 @@
-#include <variant>
 #include <iostream>
+#include <variant>
 
 template<typename OkType, typename ErrType>
 auto make_ok(OkType value);
@@ -46,55 +46,68 @@ auto make_err(ErrType value) {
   return T{std::variant<ErrType, OkType>{std::in_place_index<T::err_index>, std::move(value)}};
 }
 
+template<typename In, typename ErrType, typename Func>
+auto operator>>=(Result<In, ErrType> const & value, Func f) -> decltype(f(value.ok())) {
+  if(value.is_err()) {
+    return value.err();
+  }
+  return f(value.ok());
+}
+
+template<typename In, typename ErrType, typename Func>
+auto operator>>(Result<In, ErrType> const & value, Func f) -> decltype(f()) {
+  if(value.is_err()) {
+    return value.err();
+  }
+  return f();
+}
+
 struct Volume { int ml; };
-struct Moisture {};
-struct Temperature {};
+struct Moisture { int percentage; };
+struct Temperature { double celsius; };
 struct Error { std::string what; };
 
 class ThermoSensor {
 public:
-  Result<Temperature, Error> read() { return Temperature{}; }
+  Result<Temperature, Error> read() {
+    // return Error{"Temperature sensor error"};
+    return Temperature{};
+  }
 };
 
 class MoistureSensor {
 public:
   Result<Moisture, Error> read() {
-    // return Error{"Temperature sensor error"};
+    // return Error{"Moisture sensor error"};
     return Moisture{};
   }
 };
 
 class Pump {
 public:
-  Result<std::monostate, Error> pump(Volume amount) { return std::monostate{}; }
+  Result<std::monostate, Error> pump(Volume amount) {
+    // return Error{"Pump error"};
+    return std::monostate{};
+  }
 };
 
 class WateringSystem {
 public:
   Result<Volume, Error> water() {
-    auto const moisture = moisture_sensor.read();
-    if(moisture.is_err()) {
-      return moisture.err();
-    }
-
-    auto const temperature = thermo_sensor.read();
-    if(temperature.is_err()) {
-      return temperature.err();
-    }
-
-    auto const amount = calculate_amount(moisture.ok(), temperature.ok());
-
-    auto const pump_result = pump.pump(amount);
-    if(pump_result.is_err()) {
-      return pump_result.err();
-    }
-
-    return amount;
+    return moisture_sensor.read() >>= [&](auto moisture) {
+      return thermo_sensor.read() >>= [&](auto temperature) {
+        return calculate_amount(moisture, temperature) >>= [&](auto amount) {
+          return pump.pump(amount) >> [&]() {
+            return Result<Volume, Error>{amount};
+          };
+        };
+      };
+    };
   }
 
 private:
-  Volume calculate_amount(Moisture moisture, Temperature temperature) {
-    return Volume{42};
+  Result<Volume, Error> calculate_amount(Moisture moisture, Temperature temperature) {
+    return Volume{178};
   }
 
   MoistureSensor moisture_sensor;
