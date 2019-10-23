@@ -146,9 +146,7 @@ Volume WateringSystem::water() {
   auto const moisture = moisture_sensor.read();
   auto const temperature = thermo_sensor.read();
   auto const amount = calculate_amount(moisture, temperature);
-
   pump.pump(amount);
-
   return amount;
 }
 ```
@@ -173,9 +171,10 @@ bool WateringSystem::water(Volume & amount) {
   if(moisture_sensor.read(moisture)) {
     Temperature temperature;
     if(thermo_sensor.read(temperature)) {
-      amount = calculate_amount(moisture, temperature);
-      if(pump.pump(amount)) {
-        return true;
+      if(calculate_amount(moisture, temperature, amount)) {
+        if(pump.pump(amount)) {
+          return true;
+        }
       }
     }
   }
@@ -198,17 +197,16 @@ bool WateringSystem::water(Volume & amount) {
   if(not moisture_sensor.read(moisture)) {
     return false;
   }
-
   Temperature temperature;
   if(not thermo_sensor.read(temperature)) {
     return false;
   }
-
-  amount = calculate_amount(moisture, temperature);
+  if(not calculate_amount(moisture, temperature, amount)) {
+    return false;
+  }
   if(not pump.pump(amount)) {
     return false;
   }
-
   return true;
 }
 ```
@@ -228,14 +226,15 @@ Volume WateringSystem::water() {
     auto const moisture = moisture_sensor.read();
     auto const temperature = thermo_sensor.read();
     auto const amount = calculate_amount(moisture, temperature);
-
     pump.pump(amount);
     return amount;
+  }
+  catch(SensorError const & e) {
+    throw WateringError{e.what()};
 
-  } catch(SensorError const &) {
-    throw WateringError{"..."};
-  } catch(PumpError const &) {
-    throw WateringError{"..."};
+  }
+  catch(PumpError const & e) {
+    throw WateringError{e.what()};
   }
 }
 ```
@@ -379,7 +378,7 @@ class: middle
 ```haskell
 half :: Int -> Maybe Int
 half a
-  | even a = Just (div a 2)
+  | even a    = Just (div a 2)
   | otherwise = Nothing
 ```
 
@@ -445,7 +444,7 @@ class: middle
 ```haskell
 half :: Int -> Maybe Int
 half a
-  | even a = Just (div a 2)
+  | even a    = Just (div a 2)
   | otherwise = Nothing
 ```
 
@@ -464,6 +463,13 @@ Nothing
 ```
 
 ---
+class: center, middle
+
+# **`do`** notation
+
+.footnote[🚧 Work in Progress]
+
+---
 class: middle
 
 ```haskell
@@ -475,32 +481,21 @@ waterPlant =
         pump amount >> return amount )))
 ```
 
-.footnote[🚧 Work in Progress]
+--
 
----
-class: center, middle
-
-# **`do`** notation
-
-.footnote[🚧 Work in Progress]
-
----
-class: middle
+# .center[=]
 
 ```haskell
-half 16 >>= half >>= half
+waterPlant :: Maybe Volume
+waterPlant = do
+  moisture <- readMoisture
+  temperature <- readTemperature
+  amount <- calculateAmount moisture temperature
+  pump amount
+  return amount
 ```
 
-# .center[≈]
-
-```haskell
-do
-  a <- half 16
-  b <- half a
-  half b
-```
-
-.footnote[🚧 Work in Progress - replace with watering]
+.footnote[🚧 Work in Progress]
 
 ---
 class: middle

@@ -50,7 +50,7 @@ public:
     } catch(SensorError const & e) {
       throw WateringError{e.what()};
     } catch(PumpError const & e) {
-      throw WateringError{"Pump error"};
+      throw WateringError{e.what()};
     }
   }
 
