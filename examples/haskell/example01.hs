@@ -27,4 +27,4 @@ waterPlant = do
 
 main = case waterPlant of
   Just amount -> print amount
-  Nothing     -> print "Error !"
+  Nothing     -> print "Watering error"

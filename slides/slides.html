@@ -334,14 +334,7 @@ class: middle
 ---
 class: center, middle
 
-# **`Maybe`** 🤷
-
----
-class: middle
-
-```haskell
-data Maybe a = Nothing | Just a
-```
+# 🤷 **`Maybe`**
 
 ---
 class: middle
@@ -370,6 +363,13 @@ ghci> half 7
 ```shell
 ghci> half ( half ( half 16 ) )
 2
+```
+
+---
+class: middle
+
+```haskell
+data Maybe a = Nothing | Just a
 ```
 
 ---
@@ -467,7 +467,25 @@ class: center, middle
 
 # **`do`** notation
 
-.footnote[🚧 Work in Progress]
+---
+class: middle
+
+```haskell
+readMoisture :: Maybe Moisture
+-- ...
+
+pump :: Volume -> Maybe ()
+-- ...
+```
+
+```haskell
+waterPlant :: Maybe Volume
+waterPlant =
+  readMoisture >>= (\ moisture ->
+    readTemperature >>= (\ temperature ->
+      calculateAmount moisture temperature >>= (\ amount ->
+        pump amount >> return amount )))
+```
 
 ---
 class: middle
@@ -481,8 +499,6 @@ waterPlant =
         pump amount >> return amount )))
 ```
 
---
-
 # .center[=]
 
 ```haskell
@@ -495,18 +511,8 @@ waterPlant = do
   return amount
 ```
 
-.footnote[🚧 Work in Progress]
-
 ---
 class: middle
-
-```haskell
-readMoisture :: Maybe Moisture
--- ...
-
-pump :: Volume -> Maybe ()
--- ...
-```
 
 ```haskell
 waterPlant :: Maybe Volume
@@ -523,21 +529,21 @@ waterPlant = do
 ```haskell
 main = case waterPlant of
   Just amount -> print amount
-  Nothing     -> print "Error !"
+  Nothing     -> print "Watering error"
 ```
 
 --
 
 ```shell
 $ ./water_plant
-Volume 42
+Volume 178
 ```
 
 --
 
 ```shell
 $ ./water_plant
-Error !
+"Watering error"
 ```
 
 ---
@@ -553,7 +559,7 @@ class: center, middle
 ---
 class: center, middle
 
-# **`Either`** 👈 👉
+# 👈 **`Either`** 👉
 
 ---
 class: middle
@@ -624,14 +630,14 @@ main = case waterPlant of
 
 ```shell
 $ ./water_plant
-Volume 42
+Volume 178
 ```
 
 --
 
 ```shell
 $ ./water_plant
-Error "Temperature sensor offline"
+Error "Temperature sensor error"
 ```
 
 ---
@@ -649,10 +655,6 @@ enum Option<T> {
 }
 ```
 
---
-
-## .right[( ≈ `Maybe` )]
-
 ---
 class: middle
 
@@ -662,17 +664,6 @@ enum Result<T, E> {
    Err(E),
 }
 ```
-
---
-
-## .right[( ≈ `Either` )]
-
----
-class: center, middle
-
-# **`Result`**
-
-.footnote[🚧 Work in Progress - add symbol]
 
 ---
 class: middle
@@ -705,6 +696,8 @@ fn water_plant() -> Result<Volume, String> {
 }
 ```
 
+.footnote[🚧 Work in Progress]
+
 ---
 class: middle
 
@@ -727,6 +720,8 @@ fn water_plant() -> Result<Volume, String> {
     Ok(amount)
 }
 ```
+
+.footnote[🚧 Work in Progress]
 
 ---
 class: middle
@@ -754,7 +749,7 @@ fn main() {
 
 ```shell
 $ ./water_plant
-Water 42 ml
+Water 178 ml
 ```
 
 --
@@ -764,12 +759,12 @@ $ ./water_plant
 Temperature sensor error
 ```
 
+.footnote[🚧 Work in Progress]
+
 ---
 class: center, middle
 
-# **Back to C++**
-
-.footnote[🚧 Work in Progress - add symbol, e.g. rewind]
+# 🔙 **Back to C++**
 
 ---
 class: center, middle
@@ -957,7 +952,7 @@ Amount WateringSystem::water() {
 ---
 class: center, middle
 
-# **DIY `Result`**
+# **DIY `Result`** 🧰
 
 ---
 class: middle
