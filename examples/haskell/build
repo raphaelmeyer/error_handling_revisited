@@ -3,3 +3,4 @@
 stack exec ghc -- -dynamic example01.hs
 stack exec ghc -- -dynamic example02.hs
 stack exec ghc -- -dynamic example03.hs
+stack exec ghc -- -dynamic example04.hs

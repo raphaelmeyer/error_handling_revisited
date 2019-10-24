@@ -688,15 +688,16 @@ fn water_plant() -> Result<Volume, String> {
         Ok(t) => t,
         Err(e) => return Err(e),
     };
-    let amount = calculate_amount(moisture, temperature);
+    let amount = match calculate_amount(moisture, temperature) {
+        Ok(v) => v,
+        Err(e) => return Err(e),
+    };
     match pump(&amount) {
         Ok(_) => Ok(amount),
         Err(e) => Err(e),
     }
 }
 ```
-
-.footnote[🚧 Work in Progress]
 
 ---
 class: middle
@@ -715,13 +716,11 @@ fn pump(v: &Volume) -> Result<(), String> {
 fn water_plant() -> Result<Volume, String> {
     let moisture = read_moisture()?;
     let temperature = read_temperature()?;
-    let amount = calculate_amount(moisture, temperature);
+    let amount = calculate_amount(moisture, temperature)?;
     pump(&amount)?;
     Ok(amount)
 }
 ```
-
-.footnote[🚧 Work in Progress]
 
 ---
 class: middle
@@ -730,7 +729,7 @@ class: middle
 fn water_plant() -> Result<Volume, String> {
     let moisture = read_moisture()?;
     let temperature = read_temperature()?;
-    let amount = calculate_amount(moisture, temperature);
+    let amount = calculate_amount(moisture, temperature)?;
     pump(&amount)?;
     Ok(amount)
 }
@@ -759,8 +758,6 @@ $ ./water_plant
 Temperature sensor error
 ```
 
-.footnote[🚧 Work in Progress]
-
 ---
 class: center, middle
 
@@ -783,17 +780,18 @@ bool Pump::pump(Volume amount) { /* ... */ }
 ```cpp
 std::optional<Volume> WateringSystem::water() {
   auto const moisture = moisture_sensor.read();
-  if (not moisture) {
+  if(not moisture) {
     return std::nullopt;
   }
   auto const temperature = thermo_sensor.read();
-  if (not temperature) {
+  if(not temperature) {
     return std::nullopt;
   }
-  auto const amount =
-    calculate_amount(moisture.value(), temperature.value());
-
-  if (not pump.pump(amount)) {
+  auto const amount = calculate_amount(moisture.value(), temperature.value());
+  if(not amount) {
+    return std::nullopt;
+  }
+  if(not pump.pump(amount.value())) {
     return std::nullopt;
   }
   return amount;
@@ -816,23 +814,21 @@ std::optional<Error> Pump::pump(Volume amount) { /* ... */ }
 ```cpp
 std::variant<Volume, Error> WateringSystem::water() {
   auto const moisture = moisture_sensor.read();
-  if(auto const error = std::get_if<Error>(&moisture); error) {
+  if (auto const error = std::get_if<Error>(&moisture); error) {
     return *error;
   }
-
   auto const temperature = thermo_sensor.read();
-  if(auto const error = std::get_if<Error>(&temperature); error) {
+  if (auto const error = std::get_if<Error>(&temperature); error) {
     return *error;
   }
-
-  auto const amount = calculate_amount(
-    std::get<Moisture>(moisture),
-    std::get<Temperature>(temperature));
-
-  if(auto const error = pump.pump(amount); error) {
-    return error.value();
+  auto const amount = calculate_amount(std::get<Moisture>(moisture),
+                                       std::get<Temperature>(temperature));
+  if (auto const error = std::get_if<Error>(&amount); error) {
+    return *error;
   }
-
+  if (auto const pump_error = pump.pump(std::get<Volume>(amount)); pump_error) {
+    return pump_error.value();
+  }
   return amount;
 }
 ```
@@ -848,24 +844,22 @@ std::variant<std::monostate, Error> Pump::pump(Volume amount) { /* ... */ }
 ```cpp
 std::variant<Volume, Error> WateringSystem::water() {
   auto const moisture = moisture_sensor.read();
-  if(auto const error = std::get_if<Error>(&moisture); error) {
+  if (auto const error = std::get_if<Error>(&moisture); error) {
     return *error;
   }
-
   auto const temperature = thermo_sensor.read();
-  if(auto const error = std::get_if<Error>(&temperature); error) {
+  if (auto const error = std::get_if<Error>(&temperature); error) {
     return *error;
   }
-
-  auto const amount = calculate_amount(
-    std::get<Moisture>(moisture),
-    std::get<Temperature>(temperature));
-
-  auto const pump_result = pump.pump(amount);
-  if(auto const error = std::get_if<Error>(&pump_result); error) {
+  auto const amount = calculate_amount(std::get<Moisture>(moisture),
+                                       std::get<Temperature>(temperature));
+  if (auto const error = std::get_if<Error>(&amount); error) {
     return *error;
   }
-
+  auto const pump_result = pump.pump(std::get<Volume>(amount));
+  if (auto const error = std::get_if<Error>(&pump_result); error) {
+    return *error;
+  }
   return amount;
 }
 ```
@@ -914,13 +908,17 @@ Amount WateringSystem::water() {
         [](Error const & e) { return Amount{e}; },
         [&](Temperature const & temperature) {
           auto const amount = calculate_amount(moisture, temperature);
-          auto const pump_result = pump.pump(amount);
           return std::visit(overloaded{
             [](Error const & e) { return Amount{e}; },
-            [&](auto const & _) { return Amount{amount}; }
-          }, pump_result);
-        }}, temperature);
-    }}, moisture);
+            [&](Volume const & amount) {
+              auto const pump_result = pump.pump(amount);
+              return std::visit(overloaded{
+                [](Error const & e) { return Amount{e}; },
+                [&](auto const &) { return Amount{amount}; }
+              }, pump_result);
+          }}, amount);
+      }}, temperature);
+  }}, moisture);
 }
 ```
 ---
@@ -939,14 +937,46 @@ Amount WateringSystem::water() {
       return std::visit(overloaded{
         [](Error const & e) { return Amount{e}; },
         [&](Temperature const & temperature) {
-          auto const amount = calculate_amount(moisture, temperature);
           return std::visit(overloaded{
             [](Error const & e) { return Amount{e}; },
-            [&](auto const & _) { return Amount{amount}; }
-          }, pump.pump(amount));
-        }}, thermo_sensor.read());
-    }}, moisture_sensor.read());
+            [&](Volume const & amount) {
+              return std::visit(overloaded{
+                [](Error const & e) { return Amount{e}; },
+                [&](auto const &) { return Amount{amount}; }
+              }, pump.pump(amount));
+          }}, calculate_amount(moisture, temperature));
+      }}, thermo_sensor.read());
+  }}, moisture_sensor.read());
 }
+```
+
+---
+class: middle
+
+```cpp
+int main() {
+  auto const result = WateringSystem{}.water();
+  std::visit(overloaded{
+    [](Volume const & amount) {
+      std::cout << "Water " << amount.ml << " ml\n"; },
+    [](Error const & error) {
+      std::cout << error.what << "\n"; }
+  }, result);
+}
+```
+
+--
+
+```shell
+$ ./water_plant
+Water 178 ml
+```
+
+--
+
+```shell
+$ ./water_plant
+Temperature sensor error
 ```
 
 ---
@@ -975,8 +1005,8 @@ public:
   bool is_ok() const { return _value.index() == ok_index; }
 
 private:
-  constexpr static std::size_t const err_index = 0;
-  constexpr static std::size_t const ok_index = 1;
+  constexpr static std::size_t err_index = 0;
+  constexpr static std::size_t ok_index = 1;
   std::variant<ErrType, OkType> _value;
 
   Result(std::variant<ErrType, OkType> value) : _value{std::move(value)} {}
@@ -1014,27 +1044,28 @@ Result<std::monostate, Error> Pump::pump(Volume amount) { /* ... */ }
 ```cpp
 Result<Volume, Error> WateringSystem::water() {
   auto const moisture = moisture_sensor.read();
-  if(moisture.is_err()) {
+  if (moisture.is_err()) {
     return moisture.err();
   }
 
   auto const temperature = thermo_sensor.read();
-  if(temperature.is_err()) {
+  if (temperature.is_err()) {
     return temperature.err();
   }
 
   auto const amount = calculate_amount(moisture.ok(), temperature.ok());
+  if (amount.is_err()) {
+    return amount.err();
+  }
 
-  auto const pump_result = pump.pump(amount);
-  if(pump_result.is_err()) {
+  auto const pump_result = pump.pump(amount.ok());
+  if (pump_result.is_err()) {
     return pump_result.err();
   }
 
   return amount;
 }
 ```
-
-.footnote[🚧 Work in Progress]
 
 ---
 class: middle
@@ -1050,44 +1081,103 @@ int main() {
 }
 ```
 
+--
+
 ```shell
 $ ./water_plant
-Water 42 ml
+Water 178 ml
 ```
 
+--
 
 ```shell
 $ ./water_plant
 Temperature sensor error
 ```
 
+---
+class: center, middle
+
+# `>>=`
+
 .footnote[🚧 Work in Progress]
 
 ---
 class: middle
 
-# bind operator for `Result` ?
-
 ```cpp
-auto const result = make_right<std::string, int>(1)
-
-  >> [](auto const & arg){
-    return make_right<std::string, double>(arg + 0.7);
+template<typename In, typename ErrType, typename Func>
+auto operator>>=(Result<In, ErrType> const & value, Func f) -> decltype(f(value.ok())) {
+  if(value.is_err()) {
+    return value.err();
   }
-  >> [](auto const & arg){
-    return make_right<std::string, double>(arg + 0.4);
-  }
-  >> [](auto const & arg){
-    return make_right<std::string, int>(arg + 1);
-  };
+  return f(value.ok());
+}
 
-assert(result.is_right());
-assert(result.right() == 3);
+template<typename In, typename ErrType, typename Func>
+auto operator>>(Result<In, ErrType> const & value, Func f) -> decltype(f()) {
+  if(value.is_err()) {
+    return value.err();
+  }
+  return f();
+}
 ```
 
-.footnote[🚧 Work in Progress]
+---
+class: middle
+
+```cpp
+Result<Volume, Error> WateringSystem::water() {
+  return moisture_sensor.read() >>= [&](auto moisture) {
+    return thermo_sensor.read() >>= [&](auto temperature) {
+      return calculate_amount(moisture, temperature) >>= [&](auto amount) {
+        return pump.pump(amount) >> [&]() {
+          return Result<Volume, Error>{amount};
+        };
+      };
+    };
+  };
+}
+```
+
+--
+
+```haskell
+waterPlant :: Either Error Volume
+waterPlant =
+  readMoisture >>= (\ moisture ->
+    readTemperature >>= (\ temperature ->
+      calculateAmount moisture temperature >>= (\ amount ->
+        pump amount >> return amount )))
+```
 
 ---
+class: middle
+
+
+```
+Result<Volume, Error> WateringSystem::water() {
+
+          🧙‍♀️ ❓
+
+}
+```
+
+
+```haskell
+waterPlant :: Either Error Volume
+waterPlant = do
+  moisture <- readMoisture
+  temperature <- readTemperature
+  amount <- calculateAmount moisture temperature
+  pump amount
+  return amount
+```
+
+
+---
+
+
 
 # C++XX features
 
