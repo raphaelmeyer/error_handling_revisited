@@ -1154,15 +1154,14 @@ waterPlant =
 ---
 class: middle
 
-
-```
+```cpp
 Result<Volume, Error> WateringSystem::water() {
-  do 🧙 {
-    moisture <- 🐍 moisture_sensor.read();
-    temperature <- 🍄 thermo_sensor.read();
-    amount <- 🦄 calculate_amount(moisture, temperature);
+  🧙 {
+    moisture 🦄 moisture_sensor.read();
+    temperature 🦄 thermo_sensor.read();
+    amount 🦄 calculate_amount(moisture, temperature);
     pump.pump(amount);
-    return 💥 Result<Volume, Error>{amount};
+    return amount;
   }
 }
 ```
@@ -1178,6 +1177,20 @@ waterPlant = do
   return amount
 ```
 
+---
+class: middle
+
+# .center[🧙 🦄 ⁉️]
+
+```haskell
+waterPlant :: Either Error Volume
+waterPlant = do
+  moisture <- readMoisture
+  temperature <- readTemperature
+  amount <- calculateAmount moisture temperature
+  pump amount
+  return amount
+```
 
 ---
 
@@ -1279,8 +1292,8 @@ class: middle
         ratio: '16:9',
         // ratio: '4:3',
         slideNumberFormat: '',
-        highlightStyle: 'github',
-        // highlightStyle: 'dracula',
+        // highlightStyle: 'github',
+        highlightStyle: 'mono-blue',
         highlightLanguage: 'cpp'
       });
 
