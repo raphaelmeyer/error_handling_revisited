@@ -789,7 +789,8 @@ std::optional<Volume> WateringSystem::water() {
   if(not temperature) {
     return std::nullopt;
   }
-  auto const amount = calculate_amount(moisture.value(), temperature.value());
+  auto const amount = calculate_amount(moisture.value(),
+                                       temperature.value());
   if(not amount) {
     return std::nullopt;
   }
@@ -809,7 +810,7 @@ class: center, middle
 class: middle
 
 ```cpp
-std::variant<Moisture, Error> MoistureSensor::read() { /* .. */ }
+std::variant<Moisture, Error> MoistureSensor::read() { /* ... */ }
 std::optional<Error> Pump::pump(Volume amount) { /* ... */ }
 ```
 
@@ -824,11 +825,12 @@ std::variant<Volume, Error> WateringSystem::water() {
     return *error;
   }
   auto const amount = calculate_amount(std::get<Moisture>(moisture),
-                                       std::get<Temperature>(temperature));
+                          std::get<Temperature>(temperature));
   if (auto const error = std::get_if<Error>(&amount); error) {
     return *error;
   }
-  if (auto const pump_error = pump.pump(std::get<Volume>(amount)); pump_error) {
+  auto const pump_error = pump.pump(std::get<Volume>(amount));
+  if (pump_error) {
     return pump_error.value();
   }
   return amount;
@@ -839,8 +841,8 @@ std::variant<Volume, Error> WateringSystem::water() {
 class: middle
 
 ```cpp
-std::variant<Moisture, Error> MoistureSensor::read() { /* ... */ }
-std::variant<std::monostate, Error> Pump::pump(Volume amount) { /* ... */ }
+std::variant<Moisture, Error> MoistureSensor::read() { /*...*/ }
+std::variant<std::monostate, Error> Pump::pump(Volume amount) { /*...*/ }
 ```
 
 ```cpp
@@ -854,7 +856,7 @@ std::variant<Volume, Error> WateringSystem::water() {
     return *error;
   }
   auto const amount = calculate_amount(std::get<Moisture>(moisture),
-                                       std::get<Temperature>(temperature));
+                          std::get<Temperature>(temperature));
   if (auto const error = std::get_if<Error>(&amount); error) {
     return *error;
   }
@@ -996,8 +998,8 @@ class Result
 public:
   Result() = default;
 
-  template<typename T, typename std::enable_if<
-    std::is_convertible<T, std::variant<ErrType, OkType>>{}, int>::type = 0>
+  template<typename T, typename std::enable_if<std::is_convertible<T,
+    std::variant<ErrType, OkType>>{}, int>::type = 0>
   Result(T && value) : _value{std::forward<T>(value)} {}
 
   ErrType const & err() const { return std::get<err_index>(_value); }
@@ -1011,7 +1013,8 @@ private:
   constexpr static std::size_t ok_index = 1;
   std::variant<ErrType, OkType> _value;
 
-  Result(std::variant<ErrType, OkType> value) : _value{std::move(value)} {}
+  Result(std::variant<ErrType, OkType> value)
+  : _value{std::move(value)} {}
 
   friend auto make_ok<OkType, ErrType>(OkType value);
   friend auto make_err<OkType, ErrType>(ErrType value);
@@ -1025,13 +1028,19 @@ class: middle
 template<typename OkType, typename ErrType>
 auto make_ok(OkType value) {
   using T = Result<OkType, ErrType>;
-  return T{std::variant<ErrType, OkType>{std::in_place_index<T::ok_index>, std::move(value)}};
+  return T{std::variant<ErrType, OkType>{
+    std::in_place_index<T::ok_index>,
+    std::move(value)
+  }};
 }
 
 template<typename OkType, typename ErrType>
 auto make_err(ErrType value) {
   using T = Result<OkType, ErrType>;
-  return T{std::variant<ErrType, OkType>{std::in_place_index<T::err_index>, std::move(value)}};
+  return T{std::variant<ErrType, OkType>{
+    std::in_place_index<T::err_index>,
+    std::move(value)
+  }};
 }
 ```
 
@@ -1107,7 +1116,9 @@ class: middle
 
 ```cpp
 template<typename In, typename ErrType, typename Func>
-auto operator>>=(Result<In, ErrType> const & value, Func f) -> decltype(f(value.ok())) {
+auto operator>>=(Result<In, ErrType> const & value, Func f)
+  -> decltype(f(value.ok()))
+{
   if(value.is_err()) {
     return value.err();
   }
@@ -1115,7 +1126,9 @@ auto operator>>=(Result<In, ErrType> const & value, Func f) -> decltype(f(value.
 }
 
 template<typename In, typename ErrType, typename Func>
-auto operator>>(Result<In, ErrType> const & value, Func f) -> decltype(f()) {
+auto operator>>(Result<In, ErrType> const & value, Func f)
+  -> decltype(f())
+{
   if(value.is_err()) {
     return value.err();
   }
@@ -1128,15 +1141,15 @@ class: middle
 
 ```cpp
 Result<Volume, Error> WateringSystem::water() {
-  return moisture_sensor.read() >>= [&](auto moisture) {
-    return thermo_sensor.read() >>= [&](auto temperature) {
-      return calculate_amount(moisture, temperature) >>= [&](auto amount) {
-        return pump.pump(amount) >> [&]() {
-          return Result<Volume, Error>{amount};
-        };
-      };
+ return moisture_sensor.read() >>= [&](auto moisture) {
+  return thermo_sensor.read() >>= [&](auto temperature) {
+   return calculate_amount(moisture, temperature) >>= [&](auto amount) {
+    return pump.pump(amount) >> [&]() {
+     return Result<Volume, Error>{amount};
     };
+   };
   };
+ };
 }
 ```
 
@@ -1156,15 +1169,15 @@ class: middle
 
 ```cpp
 Result<Volume, Error> WateringSystem::water() {
-  return moisture_sensor.read() >>= [&](auto moisture) {
-    return thermo_sensor.read() >>= [&](auto temperature) {
-      return calculate_amount(moisture, temperature) >>= [&](auto amount) {
-        return pump.pump(amount) >> [&]() {
-          return Result<Volume, Error>{amount};
-        };
-      };
+ return moisture_sensor.read() >>= [&](auto moisture) {
+  return thermo_sensor.read() >>= [&](auto temperature) {
+   return calculate_amount(moisture, temperature) >>= [&](auto amount) {
+    return pump.pump(amount) >> [&]() {
+     return Result<Volume, Error>{amount};
     };
+   };
   };
+ };
 }
 ```
 
@@ -1233,22 +1246,22 @@ class: center, middle
 ---
 class: center, middle
 
-# Use .large[**value types**] to write code that is .big[_expressive_] and clearly .big[_communicates_] its .big[_intent_].
+## Use .big[**value types**] to write code that is .big[_expressive_] and clearly .big[_communicates_] its .big[_intent_].
 
 ---
 class: center, middle
 
-# Use .big[standard library] types like **`std::variant`** or **`std::optional`** in order to make _meaningless states_ .big[**impossible**] by design.
+## Use .big[standard library] types like **`std::variant`** or **`std::optional`** in order to make _meaningless states_ .big[**impossible**] by design.
 
 ---
 class: center, middle
 
-# Don't be afraid of writing wrapper types that .big[**reduce**] _syntactic noise_.
+## Don't be afraid of writing _wrapper types_ that .big[**reduce**] _syntactic noise_.
 
 ---
 class: center, middle
 
-# Keep your eyes open
+## Keep your eyes open
 
 --
 
@@ -1256,9 +1269,9 @@ class: center, middle
 
 --
 
-## and
+### and
 
-# learn a functional language
+## learn a functional language
 
 --
 
