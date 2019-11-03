@@ -79,6 +79,8 @@
         right: 1em;
       }
 
+      .grey { color: #404040; }
+
       @media print {
         .remark-slide-scaler {
           left: 2vw !important;
@@ -100,7 +102,7 @@ class: center, middle
 
 ✨
 
-## Raphael Meyer
+## **Raphael Meyer**
 
 ![:scale 25%](images/bbv.png)
 
@@ -412,9 +414,9 @@ class: center, middle
 ---
 class: center, middle
 
-## function "bind"
-
 # **`>>=`**
+
+## ( _bind_ operator )
 
 ---
 class: middle
@@ -465,7 +467,7 @@ Nothing
 ---
 class: center, middle
 
-# **`do`** notation
+# **`do`** notation 📝
 
 ---
 class: middle
@@ -499,7 +501,7 @@ waterPlant =
         pump amount >> return amount )))
 ```
 
-# .center[=]
+# .center[↕️]
 
 ```haskell
 waterPlant :: Maybe Volume
@@ -549,7 +551,7 @@ $ ./water_plant
 ---
 class: center, middle
 
-# `>>=`
+# **`>>=`**
 
 ## is implemented by
 
@@ -573,8 +575,8 @@ class: middle
 
 # .center[Convention]
 
-### 🔹 `Right` is a _value_
-### 🔹 `Left` is an _error_
+## 🔹 `Right` is a _value_
+## 🔹 `Left` is an _error_
 
 ---
 class: middle
@@ -1098,9 +1100,7 @@ Temperature sensor error
 ---
 class: center, middle
 
-# `>>=`
-
-.footnote[🚧 Work in Progress]
+# **`>>=`**
 
 ---
 class: middle
@@ -1156,6 +1156,33 @@ class: middle
 
 ```cpp
 Result<Volume, Error> WateringSystem::water() {
+  return moisture_sensor.read() >>= [&](auto moisture) {
+    return thermo_sensor.read() >>= [&](auto temperature) {
+      return calculate_amount(moisture, temperature) >>= [&](auto amount) {
+        return pump.pump(amount) >> [&]() {
+          return Result<Volume, Error>{amount};
+        };
+      };
+    };
+  };
+}
+```
+
+```haskell
+waterPlant :: Either Error Volume
+waterPlant = do
+  moisture <- readMoisture
+  temperature <- readTemperature
+  amount <- calculateAmount moisture temperature
+  pump amount
+  return amount
+```
+
+---
+class: middle
+
+```cpp
+Result<Volume, Error> WateringSystem::water() {
   🧙 {
     moisture 🦄 moisture_sensor.read();
     temperature 🦄 thermo_sensor.read();
@@ -1178,23 +1205,11 @@ waterPlant = do
 ```
 
 ---
-class: middle
+class: center, middle
 
-# .center[🧙 🦄 ⁉️]
-
-```haskell
-waterPlant :: Either Error Volume
-waterPlant = do
-  moisture <- readMoisture
-  temperature <- readTemperature
-  amount <- calculateAmount moisture temperature
-  pump amount
-  return amount
-```
+# 🧙 🦄 ⁉️
 
 ---
-
-
 
 # C++XX features
 
@@ -1272,12 +1287,43 @@ class: center, middle
 # 🙋
 
 ---
+class: center, middle
+
+![:scale 50%](images/bbv.png)
+
+# **raphael.grey[.]meyer.grey[@bbv.ch]**
+
+---
+class: center, bottom
+
+(intentionally left blank)
+
+.footnote[🚧 Work in Progress]
+
+---
+class: center, middle
+
+# **Appendix**
+
+---
 class: middle
 
-.center[![:scale 50%](images/bbv.png)]
+```cpp
+// complete code here
+//
+// ...
+// ...
+// ...
+// ...
+// ...
+// ...
+//
+```
 
-# **Raphael Meyer**
-## .right[raphael.meyer@bbv.ch]
+.footnote[🚧 Work in Progress]
+
+---
+
 
     </textarea>
     <script src="remark/remark.js" type="text/javascript">
