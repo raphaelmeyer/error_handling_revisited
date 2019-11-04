@@ -52,7 +52,8 @@ public:
       return *error;
     }
 
-    if (auto const pump_error = pump.pump(std::get<Volume>(amount)); pump_error) {
+    auto const pump_error = pump.pump(std::get<Volume>(amount));
+    if (pump_error) {
       return pump_error.value();
     }
 

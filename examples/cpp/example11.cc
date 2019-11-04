@@ -24,8 +24,8 @@ public:
   bool is_ok() const { return _value.index() == ok_index; }
 
 private:
-  constexpr static std::size_t const err_index = 0;
-  constexpr static std::size_t const ok_index = 1;
+  constexpr static std::size_t err_index = 0;
+  constexpr static std::size_t ok_index = 1;
   std::variant<ErrType, OkType> _value;
 
   Result(std::variant<ErrType, OkType> value) : _value{std::move(value)} {}
