@@ -44,11 +44,7 @@
         src: url('fonts/NotoColorEmoji/NotoColorEmoji.ttf');
       }
 
-      body {
-        font-family: 'Ubuntu', 'Noto Emoji';
-      }
       h1, h2, h3 {
-        font-family: 'Ubuntu', 'Noto Emoji';
         font-weight: normal;
       }
 
@@ -63,6 +59,9 @@
         height: auto;
       }
 
+      body, h1, h2, h3 {
+        font-family: 'Ubuntu', 'Noto Emoji';
+      }
       .remark-code, .remark-inline-code {
         font-family: 'Roboto Mono', 'Noto Emoji';
       }
@@ -80,16 +79,6 @@
       }
 
       .grey { color: #404040; }
-
-      @media print {
-        .remark-slide-scaler {
-          left: 2vw !important;
-          width: 96vw !important;
-          top: 2vh !important;
-          height: 96vh !important;
-          transform: scale(1) !important;
-        }
-      }
 
     </style>
   </head>
@@ -1304,7 +1293,8 @@ class: center, middle
         slideNumberFormat: '',
         // highlightStyle: 'github',
         highlightStyle: 'mono-blue',
-        highlightLanguage: 'cpp'
+        highlightLanguage: 'cpp',
+        disableIncrementalSlides: false
       });
 
     </script>
