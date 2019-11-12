@@ -359,9 +359,9 @@ ghci> half ( half ( half 16 ) )
 ---
 class: middle
 
-```haskell
+.huge[```haskell
 data Maybe a = Nothing | Just a
-```
+```]
 
 ---
 class: middle
@@ -411,23 +411,23 @@ class: center, middle
 class: middle
 
 
-```haskell
+.huge[```haskell
 (>>=) :: (Monad m) => m a -> (a -> m b) -> m b
-```
+```]
 
 --
 
-```haskell
+.huge[```haskell
 data Maybe a = Nothing | Just a
-```
+```]
 
 --
 
-```haskell
+.huge[```haskell
 instance Monad Maybe where
   (Just x) >>= k = k x
   Nothing  >>= _ = Nothing
-```
+```]
 
 ---
 class: middle
@@ -555,9 +555,9 @@ class: center, middle
 ---
 class: middle
 
-```haskell
+.huge[```haskell
 data Either a b = Left a | Right b
-```
+```]
 
 ---
 class: middle
@@ -570,23 +570,23 @@ class: middle
 ---
 class: middle
 
-```haskell
+.huge[```haskell
 (>>=) :: (Monad m) => m a -> (a -> m b) -> m b
-```
+```]
 
 --
 
-```haskell
+.huge[```haskell
 data Either a b = Left a | Right b
-```
+```]
 
 --
 
-```haskell
+.huge[```haskell
 instance Monad Either where
   Left  l >>= _ = Left l
   Right r >>= k = k r
-```
+```]
 
 ---
 class: middle
@@ -639,22 +639,22 @@ class: center, middle
 ---
 class: middle
 
-```rust
+.huge[```rust
 enum Option<T> {
     None,
     Some(T),
 }
-```
+```]
 
 ---
 class: middle
 
-```rust
+.huge[```rust
 enum Result<T, E> {
    Ok(T),
    Err(E),
 }
-```
+```]
 
 ---
 class: middle
@@ -1245,21 +1245,21 @@ class: center, middle
 ---
 class: center, middle
 
-## Keep your eyes open
+# Keep your eyes open
 
 --
 
-... and discover the functional gems that inspired your language.
+### ... and discover the functional gems that inspired your language.
 
 --
 
-### and
+## and
 
-## learn a functional language
+# learn a functional language
 
 --
 
-... so you're actually capable of spotting them.
+### ... so you're actually capable of spotting them.
 
 ---
 class: center, middle
