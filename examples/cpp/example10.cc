@@ -46,6 +46,22 @@ auto make_err(ErrType value) {
   return T{std::variant<ErrType, OkType>{std::in_place_index<T::err_index>, std::move(value)}};
 }
 
+template<typename In, typename ErrType, typename Func>
+auto operator>>=(Result<In, ErrType> const & value, Func f) -> decltype(f(value.ok())) {
+  if(value.is_err()) {
+    return value.err();
+  }
+  return f(value.ok());
+}
+
+template<typename In, typename ErrType, typename Func>
+auto operator>>(Result<In, ErrType> const & value, Func f) -> decltype(f()) {
+  if(value.is_err()) {
+    return value.err();
+  }
+  return f();
+}
+
 struct Volume { int ml; };
 struct Moisture { int percentage; };
 struct Temperature { double celsius; };
@@ -55,7 +71,7 @@ class ThermoSensor {
 public:
   Result<Temperature, Error> read() {
     // return Error{"Temperature sensor error"};
-    return Temperature{21.5};
+    return Temperature{};
   }
 };
 
@@ -63,7 +79,7 @@ class MoistureSensor {
 public:
   Result<Moisture, Error> read() {
     // return Error{"Moisture sensor error"};
-    return Moisture{40};
+    return Moisture{};
   }
 };
 
@@ -78,27 +94,15 @@ public:
 class WateringSystem {
 public:
   Result<Volume, Error> water() {
-    auto const moisture = moisture_sensor.read();
-    if (moisture.is_err()) {
-      return moisture.err();
-    }
-
-    auto const temperature = thermo_sensor.read();
-    if (temperature.is_err()) {
-      return temperature.err();
-    }
-
-    auto const amount = calculate_amount(moisture.ok(), temperature.ok());
-    if (amount.is_err()) {
-      return amount.err();
-    }
-
-    auto const pump_result = pump.pump(amount.ok());
-    if (pump_result.is_err()) {
-      return pump_result.err();
-    }
-
-    return amount;
+    return moisture_sensor.read() >>= [&](auto moisture) {
+      return thermo_sensor.read() >>= [&](auto temperature) {
+        return calculate_amount(moisture, temperature) >>= [&](auto amount) {
+          return pump.pump(amount) >> [&]() {
+            return Result<Volume, Error>{amount};
+          };
+        };
+      };
+    };
   }
 
 private:

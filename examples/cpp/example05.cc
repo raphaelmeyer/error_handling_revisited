@@ -1,5 +1,6 @@
 #include <iostream>
 #include <optional>
+#include <variant>
 
 struct Volume { int ml; };
 struct Moisture { int percentage; };
@@ -23,9 +24,9 @@ public:
 
 class Pump {
 public:
-  bool pump(Volume amount) {
-    // return false;
-    return true;
+  std::optional<std::monostate> pump(Volume amount) {
+    // return std::nullopt;
+    return std::monostate{};
   }
 };
 

@@ -41,26 +41,22 @@ public:
 class WateringSystem {
 public:
   Amount water() {
-    auto const moisture = moisture_sensor.read();
     return std::visit(overloaded{
       [](Error const & e) { return Amount{e}; },
       [&](Moisture const & moisture) {
-        auto const temperature = thermo_sensor.read();
         return std::visit(overloaded{
           [](Error const & e) { return Amount{e}; },
           [&](Temperature const & temperature) {
-            auto const amount = calculate_amount(moisture, temperature);
             return std::visit(overloaded{
               [](Error const & e) { return Amount{e}; },
               [&](Volume const & amount) {
-                auto const pump_result = pump.pump(amount);
                 return std::visit(overloaded{
                   [](Error const & e) { return Amount{e}; },
                   [&](auto const &) { return Amount{amount}; }
-                }, pump_result);
-            }}, amount);
-        }}, temperature);
-    }}, moisture);
+                }, pump.pump(amount));
+            }}, calculate_amount(moisture, temperature));
+        }}, thermo_sensor.read());
+    }}, moisture_sensor.read());
   }
 
 private:

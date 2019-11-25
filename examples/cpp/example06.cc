@@ -1,9 +1,5 @@
 #include <iostream>
-#include <optional>
 #include <variant>
-
-template <class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
-template <class... Ts> overloaded(Ts...)->overloaded<Ts...>;
 
 struct Volume { int ml; };
 struct Moisture { int percentage; };
@@ -28,9 +24,9 @@ public:
 
 class Pump {
 public:
-  std::optional<Error> pump(Volume amount) {
+  std::variant<std::monostate, Error> pump(Volume amount) {
     // return Error{"Pump error"};
-    return std::nullopt;
+    return std::monostate{};
   }
 };
 
@@ -52,9 +48,9 @@ public:
       return *error;
     }
 
-    auto const pump_error = pump.pump(std::get<Volume>(amount));
-    if (pump_error) {
-      return pump_error.value();
+    auto const pump_result = pump.pump(std::get<Volume>(amount));
+    if (auto const error = std::get_if<Error>(&pump_result); error) {
+      return *error;
     }
 
     return amount;

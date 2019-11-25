@@ -1,22 +1,59 @@
 #include <iostream>
 #include <variant>
 
-template <class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
-template <class... Ts> overloaded(Ts...)->overloaded<Ts...>;
+template<typename OkType, typename ErrType>
+auto make_ok(OkType value);
+
+template<typename OkType, typename ErrType>
+auto make_err(ErrType value);
+
+template<typename OkType, typename ErrType>
+class Result
+{
+public:
+  Result() = default;
+
+  template<typename T, typename std::enable_if<
+    std::is_convertible<T, std::variant<ErrType, OkType>>{}, int>::type = 0>
+  Result(T && value) : _value{std::forward<T>(value)} {}
+
+  ErrType const & err() const { return std::get<err_index>(_value); }
+  OkType const & ok() const { return std::get<ok_index>(_value); }
+
+  bool is_err() const { return _value.index() == err_index; }
+  bool is_ok() const { return _value.index() == ok_index; }
+
+private:
+  constexpr static std::size_t err_index = 0;
+  constexpr static std::size_t ok_index = 1;
+  std::variant<ErrType, OkType> _value;
+
+  Result(std::variant<ErrType, OkType> value) : _value{std::move(value)} {}
+
+  friend auto make_ok<OkType, ErrType>(OkType value);
+  friend auto make_err<OkType, ErrType>(ErrType value);
+};
+
+template<typename OkType, typename ErrType>
+auto make_ok(OkType value) {
+  using T = Result<OkType, ErrType>;
+  return T{std::variant<ErrType, OkType>{std::in_place_index<T::ok_index>, std::move(value)}};
+}
+
+template<typename OkType, typename ErrType>
+auto make_err(ErrType value) {
+  using T = Result<OkType, ErrType>;
+  return T{std::variant<ErrType, OkType>{std::in_place_index<T::err_index>, std::move(value)}};
+}
 
 struct Volume { int ml; };
 struct Moisture { int percentage; };
 struct Temperature { double celsius; };
 struct Error { std::string what; };
 
-template <typename T>
-using Result = std::variant<T, Error>;
-
-using Amount = Result<Volume>;
-
 class ThermoSensor {
 public:
-  Result<Temperature> read() {
+  Result<Temperature, Error> read() {
     // return Error{"Temperature sensor error"};
     return Temperature{21.5};
   }
@@ -24,15 +61,15 @@ public:
 
 class MoistureSensor {
 public:
-  Result<Moisture> read() {
+  Result<Moisture, Error> read() {
     // return Error{"Moisture sensor error"};
     return Moisture{40};
-   }
+  }
 };
 
 class Pump {
 public:
-  Result<std::monostate> pump(Volume amount) {
+  Result<std::monostate, Error> pump(Volume amount) {
     // return Error{"Pump error"};
     return std::monostate{};
   }
@@ -40,27 +77,32 @@ public:
 
 class WateringSystem {
 public:
-  Amount water() {
-    return std::visit(overloaded{
-      [](Error const & e) { return Amount{e}; },
-      [&](Moisture const & moisture) {
-        return std::visit(overloaded{
-          [](Error const & e) { return Amount{e}; },
-          [&](Temperature const & temperature) {
-            return std::visit(overloaded{
-              [](Error const & e) { return Amount{e}; },
-              [&](Volume const & amount) {
-                return std::visit(overloaded{
-                  [](Error const & e) { return Amount{e}; },
-                  [&](auto const &) { return Amount{amount}; }
-                }, pump.pump(amount));
-            }}, calculate_amount(moisture, temperature));
-        }}, thermo_sensor.read());
-    }}, moisture_sensor.read());
+  Result<Volume, Error> water() {
+    auto const moisture = moisture_sensor.read();
+    if (moisture.is_err()) {
+      return moisture.err();
+    }
+
+    auto const temperature = thermo_sensor.read();
+    if (temperature.is_err()) {
+      return temperature.err();
+    }
+
+    auto const amount = calculate_amount(moisture.ok(), temperature.ok());
+    if (amount.is_err()) {
+      return amount.err();
+    }
+
+    auto const pump_result = pump.pump(amount.ok());
+    if (pump_result.is_err()) {
+      return pump_result.err();
+    }
+
+    return amount;
   }
 
 private:
-  Result<Volume> calculate_amount(Moisture moisture, Temperature temperature) {
+  Result<Volume, Error> calculate_amount(Moisture moisture, Temperature temperature) {
     return Volume{178};
   }
 
@@ -70,11 +112,10 @@ private:
 };
 
 int main() {
-  auto const result = WateringSystem{}.water();
-  std::visit(overloaded{
-    [](Volume const & amount) {
-      std::cout << "Water " << amount.ml << " ml\n"; },
-    [](Error const & error) {
-      std::cout << error.what << "\n"; }
-  }, result);
+  auto const amount = WateringSystem{}.water();
+  if(amount.is_ok()) {
+    std::cout << "Water " << amount.ok().ml << " ml\n";
+  } else {
+    std::cout << amount.err().what << "\n";
+  }
 }
