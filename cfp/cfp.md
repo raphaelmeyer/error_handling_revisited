@@ -4,7 +4,7 @@ In order to do something useful or at least interesting, any software has to int
 
 When I started to learn Haskell, I was fascinated by the way the language deals with side effects. In functional programming you generally do not want to have side effects. But it is an inevitable fact that you still have to. This necessity resulted in very elegant concepts that recently gained a lot of attention in conventional programming languages as well.
 
-In this talk we will explore how error handling might look in Haskell, how it influenced other languages and what we can learn therefrom.
+In this talk we will explore how error handling might look in Haskell, how it influenced other languages and what we can learn therefrom. We will look at how to apply this to C++ and touch a few features of C++17. But we'll also see where the available language constructs prevent us from going further.
 
 ## Elevator Pitch
 
