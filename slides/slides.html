@@ -160,7 +160,7 @@ class: center, middle
 ![Plant Watering System](images/watering.png)
 
 ---
-class: middle
+class: middle, large
 
 ```cpp
 Moisture MoistureSensor::read() { /* ... */ }
@@ -184,7 +184,7 @@ class: center, middle
 # But, what if 💥 ❓
 
 ---
-class: middle
+class: middle, big
 
 ```cpp
 bool MoistureSensor::read(Moisture & moisture) { /* ... */ }
@@ -213,7 +213,7 @@ bool WateringSystem::water(Volume & amount) {
 class: middle
 
 ```cpp
-*bool MoistureSensor::read(Moisture & moisture) { /* ... */ }
+bool MoistureSensor::read(Moisture & moisture) { /* ... */ }
 bool Pump::pump(Volume amount) { /* ... */ }
 // ...
 ```
@@ -277,7 +277,7 @@ class: center, middle
 ![Learn You](images/lyahfgg.png)
 
 ---
-class: middle
+class: middle, large
 
 ```haskell
 readMoisture :: Maybe Moisture
@@ -315,11 +315,11 @@ class: center, middle
 
 ---
 
-```haskell
+.large[```haskell
 waterPlant :: Maybe Volume
 waterPlant = do
   -- ...
-```
+```]
 
 --
 
@@ -364,7 +364,7 @@ class: center, middle
 # 🤷 **`Maybe`**
 
 ---
-class: middle
+class: middle, large
 
 ```haskell
 half :: Int -> Int
@@ -393,14 +393,14 @@ ghci> half ( half ( half 16 ) )
 ```
 
 ---
-class: middle
+class: middle, huge
 
-.huge[```haskell
+```haskell
 data Maybe a = Nothing | Just a
-```]
+```
 
 ---
-class: middle
+class: middle, large
 
 ```haskell
 half :: Int -> Maybe Int
@@ -444,29 +444,29 @@ class: center, middle
 ## ( _bind_ operator )
 
 ---
-class: middle
+class: middle, huge
 
 
-.huge[```haskell
+```haskell
 (>>=) :: (Monad m) => m a -> (a -> m b) -> m b
-```]
+```
 
 --
 
-.huge[```haskell
+```haskell
 data Maybe a = Nothing | Just a
-```]
+```
 
 --
 
-.huge[```haskell
+```haskell
 instance Monad Maybe where
   (Just x) >>= k = k x
   Nothing  >>= _ = Nothing
-```]
+```
 
 ---
-class: middle
+class: middle, large
 
 ```haskell
 half :: Int -> Maybe Int
@@ -495,7 +495,7 @@ class: center, middle
 # **`do`** notation 📝
 
 ---
-class: middle
+class: middle, large
 
 ```haskell
 readMoisture :: Maybe Moisture
@@ -517,18 +517,18 @@ waterPlant =
 ---
 class: middle
 
-```haskell
+.big[```haskell
 waterPlant :: Maybe Volume
 waterPlant =
   readMoisture >>= (\ moisture ->
     readTemperature >>= (\ temperature ->
       calculateAmount moisture temperature >>= (\ amount ->
         pump amount >> return amount )))
-```
+```]
 
 # .center[↕️]
 
-```haskell
+.big[```haskell
 waterPlant :: Maybe Volume
 waterPlant = do
   moisture <- readMoisture
@@ -536,7 +536,7 @@ waterPlant = do
   amount <- calculateAmount moisture temperature
   pump amount
   return amount
-```
+```]
 
 ---
 class: middle
