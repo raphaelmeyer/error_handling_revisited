@@ -539,7 +539,7 @@ waterPlant = do
 ```]
 
 ---
-class: middle
+class: middle, big
 
 ```haskell
 waterPlant :: Maybe Volume
@@ -550,8 +550,6 @@ waterPlant = do
   pump amount
   return amount
 ```
-
---
 
 ```haskell
 main = case waterPlant of
@@ -589,11 +587,11 @@ class: center, middle
 # 👈 **`Either`** 👉
 
 ---
-class: middle
+class: middle, huge
 
-.huge[```haskell
+```haskell
 data Either a b = Left a | Right b
-```]
+```
 
 ---
 class: middle
@@ -604,33 +602,32 @@ class: middle
 ## 🔹 `Left` is an _error_
 
 ---
-class: middle
+class: middle, huge
 
-.huge[```haskell
+```haskell
 (>>=) :: (Monad m) => m a -> (a -> m b) -> m b
-```]
+```
 
 --
 
-.huge[```haskell
+```haskell
 data Either a b = Left a | Right b
-```]
+```
 
 --
 
-.huge[```haskell
+```haskell
 instance Monad Either where
   Left  l >>= _ = Left l
   Right r >>= k = k r
-```]
+```
 
 ---
-class: middle
+class: middle, large
 
 ```haskell
 readMoisture :: Either Error Moisture
 -- ...
-
 pump :: Volume -> Either Error ()
 -- ...
 ```
@@ -645,7 +642,19 @@ waterPlant = do
   return amount
 ```
 
---
+
+---
+class: middle, big
+
+```haskell
+waterPlant :: Either Error Volume
+waterPlant = do
+  moisture <- readMoisture
+  temperature <- readTemperature
+  amount <- calculateAmount moisture temperature
+  pump amount
+  return amount
+```
 
 ```haskell
 main = case waterPlant of
@@ -673,24 +682,24 @@ class: center, middle
 # **Rust** ⚙️
 
 ---
-class: middle
+class: middle, huge
 
-.huge[```rust
+```rust
 enum Option<T> {
     None,
     Some(T),
 }
-```]
+```
 
 ---
-class: middle
+class: middle, huge
 
-.huge[```rust
+```rust
 enum Result<T, E> {
    Ok(T),
    Err(E),
 }
-```]
+```
 
 ---
 class: middle
