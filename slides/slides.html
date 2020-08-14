@@ -77,6 +77,10 @@
       font-family: 'Ubuntu', 'Noto Emoji';
     }
 
+    .remark-slide-content {
+      padding: 32px;
+    }
+
     .remark-code,
     .remark-inline-code {
       font-family: 'Roboto Mono', 'Noto Emoji';
@@ -736,7 +740,7 @@ fn water_plant() -> Result<Volume, String> {
 ```
 
 ---
-class: middle
+class: middle, big
 
 ```rust
 fn read_moisture() -> Result<Moisture, String> {
@@ -879,20 +883,22 @@ class: middle
 
 ## .center[A few helpers]
 
-```cpp
+.large[```cpp
 template <class... Ts> struct overloaded : Ts... {
   using Ts::operator()...;
 };
 
 template <class... Ts> overloaded(Ts...)->overloaded<Ts...>;
-```
+```]
 
-```cpp
+--
+
+.large[```cpp
 template <typename T>
 using Result = std::variant<T, Error>;
 
 using Amount = Result<Volume>;
-```
+```]
 
 ---
 class: middle
@@ -926,6 +932,205 @@ Amount WateringSystem::water() {
   }}, moisture);
 }
 ```
+
+---
+class: middle
+
+```cpp
+Result<Moisture> MoistureSensor::read() { /* ... */ }
+Result<std::monostate> Pump::pump(Volume amount) { /* ... */ }
+```
+
+```cpp
+Amount WateringSystem::water() {
+* auto const moisture = moisture_sensor.read();
+* return std::visit(overloaded{
+    [](Error const & e) { return Amount{e}; },
+    [&](Moisture const & moisture) {
+      auto const temperature = thermo_sensor.read();
+      return std::visit(overloaded{
+        [](Error const & e) { return Amount{e}; },
+        [&](Temperature const & temperature) {
+          auto const amount = calculate_amount(moisture, temperature);
+          return std::visit(overloaded{
+            [](Error const & e) { return Amount{e}; },
+            [&](Volume const & amount) {
+              auto const pump_result = pump.pump(amount);
+              return std::visit(overloaded{
+                [](Error const & e) { return Amount{e}; },
+                [&](auto const &) { return Amount{amount}; }
+              }, pump_result);
+          }}, amount);
+      }}, temperature);
+* }}, moisture);
+}
+```
+
+---
+class: middle
+
+```cpp
+Result<Moisture> MoistureSensor::read() { /* ... */ }
+Result<std::monostate> Pump::pump(Volume amount) { /* ... */ }
+```
+
+```cpp
+Amount WateringSystem::water() {
+  auto const moisture = moisture_sensor.read();
+  return std::visit(overloaded{
+*   [](Error const & e) { return Amount{e}; },
+*   [&](Moisture const & moisture) {
+      auto const temperature = thermo_sensor.read();
+      return std::visit(overloaded{
+        [](Error const & e) { return Amount{e}; },
+        [&](Temperature const & temperature) {
+          auto const amount = calculate_amount(moisture, temperature);
+          return std::visit(overloaded{
+            [](Error const & e) { return Amount{e}; },
+            [&](Volume const & amount) {
+              auto const pump_result = pump.pump(amount);
+              return std::visit(overloaded{
+                [](Error const & e) { return Amount{e}; },
+                [&](auto const &) { return Amount{amount}; }
+              }, pump_result);
+          }}, amount);
+      }}, temperature);
+  }}, moisture);
+}
+```
+
+---
+class: middle
+
+```cpp
+Result<Moisture> MoistureSensor::read() { /* ... */ }
+Result<std::monostate> Pump::pump(Volume amount) { /* ... */ }
+```
+
+```cpp
+Amount WateringSystem::water() {
+  auto const moisture = moisture_sensor.read();
+  return std::visit(overloaded{
+    [](Error const & e) { return Amount{e}; },
+    [&](Moisture const & moisture) {
+*     auto const temperature = thermo_sensor.read();
+*     return std::visit(overloaded{
+*       [](Error const & e) { return Amount{e}; },
+*       [&](Temperature const & temperature) {
+          auto const amount = calculate_amount(moisture, temperature);
+          return std::visit(overloaded{
+            [](Error const & e) { return Amount{e}; },
+            [&](Volume const & amount) {
+              auto const pump_result = pump.pump(amount);
+              return std::visit(overloaded{
+                [](Error const & e) { return Amount{e}; },
+                [&](auto const &) { return Amount{amount}; }
+              }, pump_result);
+          }}, amount);
+*     }}, temperature);
+  }}, moisture);
+}
+```
+
+---
+class: middle
+
+```cpp
+Result<Moisture> MoistureSensor::read() { /* ... */ }
+Result<std::monostate> Pump::pump(Volume amount) { /* ... */ }
+```
+
+```cpp
+Amount WateringSystem::water() {
+  auto const moisture = moisture_sensor.read();
+  return std::visit(overloaded{
+    [](Error const & e) { return Amount{e}; },
+    [&](Moisture const & moisture) {
+      auto const temperature = thermo_sensor.read();
+      return std::visit(overloaded{
+        [](Error const & e) { return Amount{e}; },
+        [&](Temperature const & temperature) {
+*         auto const amount = calculate_amount(moisture, temperature);
+*         return std::visit(overloaded{
+*           [](Error const & e) { return Amount{e}; },
+*           [&](Volume const & amount) {
+              auto const pump_result = pump.pump(amount);
+              return std::visit(overloaded{
+                [](Error const & e) { return Amount{e}; },
+                [&](auto const &) { return Amount{amount}; }
+              }, pump_result);
+*         }}, amount);
+      }}, temperature);
+  }}, moisture);
+}
+```
+
+---
+class: middle
+
+```cpp
+Result<Moisture> MoistureSensor::read() { /* ... */ }
+Result<std::monostate> Pump::pump(Volume amount) { /* ... */ }
+```
+
+```cpp
+Amount WateringSystem::water() {
+  auto const moisture = moisture_sensor.read();
+  return std::visit(overloaded{
+    [](Error const & e) { return Amount{e}; },
+    [&](Moisture const & moisture) {
+      auto const temperature = thermo_sensor.read();
+      return std::visit(overloaded{
+        [](Error const & e) { return Amount{e}; },
+        [&](Temperature const & temperature) {
+          auto const amount = calculate_amount(moisture, temperature);
+          return std::visit(overloaded{
+            [](Error const & e) { return Amount{e}; },
+            [&](Volume const & amount) {
+*             auto const pump_result = pump.pump(amount);
+*             return std::visit(overloaded{
+                [](Error const & e) { return Amount{e}; },
+                [&](auto const &) { return Amount{amount}; }
+*             }, pump_result);
+          }}, amount);
+      }}, temperature);
+  }}, moisture);
+}
+```
+
+---
+class: middle
+
+```cpp
+Result<Moisture> MoistureSensor::read() { /* ... */ }
+Result<std::monostate> Pump::pump(Volume amount) { /* ... */ }
+```
+
+```cpp
+Amount WateringSystem::water() {
+  auto const moisture = moisture_sensor.read();
+  return std::visit(overloaded{
+    [](Error const & e) { return Amount{e}; },
+    [&](Moisture const & moisture) {
+      auto const temperature = thermo_sensor.read();
+      return std::visit(overloaded{
+        [](Error const & e) { return Amount{e}; },
+        [&](Temperature const & temperature) {
+          auto const amount = calculate_amount(moisture, temperature);
+          return std::visit(overloaded{
+            [](Error const & e) { return Amount{e}; },
+            [&](Volume const & amount) {
+              auto const pump_result = pump.pump(amount);
+              return std::visit(overloaded{
+*               [](Error const & e) { return Amount{e}; },
+*               [&](auto const &) { return Amount{amount}; }
+              }, pump_result);
+          }}, amount);
+      }}, temperature);
+  }}, moisture);
+}
+```
+
 ---
 class: middle
 
@@ -957,6 +1162,35 @@ Amount WateringSystem::water() {
 
 ---
 class: middle
+
+```cpp
+Result<Moisture> MoistureSensor::read() { /* ... */ }
+Result<std::monostate> Pump::pump(Volume amount) { /* ... */ }
+```
+
+```cpp
+Amount WateringSystem::water() {
+  return std::visit(overloaded{
+    [](Error const & e) { return Amount{e}; },
+    [&](Moisture const & moisture) {
+      return std::visit(overloaded{
+        [](Error const & e) { return Amount{e}; },
+        [&](Temperature const & temperature) {
+          return std::visit(overloaded{
+            [](Error const & e) { return Amount{e}; },
+            [&](Volume const & amount) {
+              return std::visit(overloaded{
+                [](Error const & e) { return Amount{e}; },
+                [&](auto const &) { return Amount{amount}; }
+*             }, pump.pump(amount));
+*         }}, calculate_amount(moisture, temperature));
+*     }}, thermo_sensor.read());
+* }}, moisture_sensor.read());
+}
+```
+
+---
+class: middle, big
 
 ```cpp
 int main() {
@@ -1079,7 +1313,7 @@ Result<Volume, Error> WateringSystem::water() {
 ```
 
 ---
-class: middle
+class: middle, big
 
 ```cpp
 int main() {
@@ -1136,6 +1370,27 @@ auto operator>>(Result<In, ErrType> const & value, Func f) -> decltype(f()) {
 class: middle
 
 ```cpp
+template<typename In, typename ErrType, typename Func>
+auto operator>>=(Result<In, ErrType> const & value, Func f) -> decltype(f(value.ok())) {
+* if(value.is_err()) {
+*   return value.err();
+* }
+* return f(value.ok());
+}
+
+template<typename In, typename ErrType, typename Func>
+auto operator>>(Result<In, ErrType> const & value, Func f) -> decltype(f()) {
+  if(value.is_err()) {
+    return value.err();
+  }
+  return f();
+}
+```
+
+---
+class: middle, big
+
+```cpp
 Result<Volume, Error> WateringSystem::water() {
   return moisture_sensor.read() >>= [&](auto moisture) {
     return thermo_sensor.read() >>= [&](auto temperature) {
@@ -1161,7 +1416,111 @@ waterPlant =
 ```
 
 ---
-class: middle
+class: middle, big
+
+```cpp
+Result<Volume, Error> WateringSystem::water() {
+* return moisture_sensor.read() >>= [&](auto moisture) {
+    return thermo_sensor.read() >>= [&](auto temperature) {
+      return calculate_amount(moisture, temperature) >>= [&](auto amount) {
+        return pump.pump(amount) >> [&]() {
+          return Result<Volume, Error>{amount};
+        };
+      };
+    };
+  };
+}
+```
+
+```haskell
+waterPlant :: Either Error Volume
+waterPlant =
+* readMoisture >>= (\ moisture ->
+    readTemperature >>= (\ temperature ->
+      calculateAmount moisture temperature >>= (\ amount ->
+        pump amount >> return amount )))
+```
+
+---
+class: middle, big
+
+```cpp
+Result<Volume, Error> WateringSystem::water() {
+  return moisture_sensor.read() >>= [&](auto moisture) {
+*   return thermo_sensor.read() >>= [&](auto temperature) {
+      return calculate_amount(moisture, temperature) >>= [&](auto amount) {
+        return pump.pump(amount) >> [&]() {
+          return Result<Volume, Error>{amount};
+        };
+      };
+    };
+  };
+}
+```
+
+```haskell
+waterPlant :: Either Error Volume
+waterPlant =
+  readMoisture >>= (\ moisture ->
+*   readTemperature >>= (\ temperature ->
+      calculateAmount moisture temperature >>= (\ amount ->
+        pump amount >> return amount )))
+```
+
+---
+class: middle, big
+
+```cpp
+Result<Volume, Error> WateringSystem::water() {
+  return moisture_sensor.read() >>= [&](auto moisture) {
+    return thermo_sensor.read() >>= [&](auto temperature) {
+*     return calculate_amount(moisture, temperature) >>= [&](auto amount) {
+        return pump.pump(amount) >> [&]() {
+          return Result<Volume, Error>{amount};
+        };
+      };
+    };
+  };
+}
+```
+
+```haskell
+waterPlant :: Either Error Volume
+waterPlant =
+  readMoisture >>= (\ moisture ->
+    readTemperature >>= (\ temperature ->
+*     calculateAmount moisture temperature >>= (\ amount ->
+        pump amount >> return amount )))
+```
+
+---
+class: middle, big
+
+```cpp
+Result<Volume, Error> WateringSystem::water() {
+  return moisture_sensor.read() >>= [&](auto moisture) {
+    return thermo_sensor.read() >>= [&](auto temperature) {
+      return calculate_amount(moisture, temperature) >>= [&](auto amount) {
+*       return pump.pump(amount) >> [&]() {
+*         return Result<Volume, Error>{amount};
+        };
+      };
+    };
+  };
+}
+```
+
+```haskell
+waterPlant :: Either Error Volume
+waterPlant =
+  readMoisture >>= (\ moisture ->
+    readTemperature >>= (\ temperature ->
+      calculateAmount moisture temperature >>= (\ amount ->
+*       pump amount >> return amount )))
+```
+
+---
+class: middle, big
 
 ```cpp
 Result<Volume, Error> WateringSystem::water() {
@@ -1188,7 +1547,7 @@ waterPlant = do
 ```
 
 ---
-class: middle
+class: middle, big
 
 ```cpp
 Result<Volume, Error> WateringSystem::water() {
