@@ -1,0 +1,12 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "editor.fontSize": 24,
+    "terminal.integrated.fontSize": 24,
+    "editor.formatOnSave": true
+  }
+}
