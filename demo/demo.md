@@ -12,11 +12,20 @@ Start ghci and load code:
 
     > :load demo.hs
 
-## half function
+## Demo
+
+### Slides
+
+-> Maybe
+
+### half function
+
+code:
 
     half :: Int -> Int
     half n = div n 2
 
+repl:
 
     > :reload
 
@@ -26,14 +35,19 @@ Start ghci and load code:
     > half ( half 8 )
     > half ( half ( half 18 ))
 
-## Slides
+### Slides
 
-## odd/even
+-> `data Maybe a = Nothing | Just a`
+
+### odd/even
+
+code:
 
     half :: Int -> Maybe Int
     half n | even n     = Just ( div n 2 )
            | otherwise  = Nothing
 
+repl:
 
     > :reload
 
@@ -42,9 +56,11 @@ Start ghci and load code:
 
     > half ( half 16 )
 
-## Slides
+### Slides
 
-## bind
+-> `instance Monad Maybe where` ...
+
+### bind
 
     > half 16
     > half 16 >>= half
