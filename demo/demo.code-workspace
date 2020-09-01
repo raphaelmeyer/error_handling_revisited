@@ -7,6 +7,7 @@
   "settings": {
     "editor.fontSize": 24,
     "terminal.integrated.fontSize": 24,
+    "workbench.colorTheme": "Default Light+",
     "editor.formatOnSave": true
   }
 }
