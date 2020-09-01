@@ -3,6 +3,7 @@
 ## Setup
 
 Split screen in two
+
 - editor showing `demo.hs`
 - console for `ghci`
 
