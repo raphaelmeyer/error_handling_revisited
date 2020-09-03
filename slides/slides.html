@@ -102,6 +102,10 @@
       font-size: 75%;
     }
 
+    .slightly-smaller {
+      font-size: 95%;
+    }
+
     .custom-big {
       font-size: 120%;
     }
@@ -716,13 +720,8 @@ enum Result<T, E> {
 class: middle
 
 ```rust
-fn read_moisture() -> Result<Moisture, String> {
-  // ...
-}
-
-fn pump(v: &Volume) -> Result<(), String> {
-  // ...
-}
+fn read_moisture() -> Result<Moisture, String> { /* ... */ }
+fn pump(v: &Volume) -> Result<(), String> { /* ... */ }
 ```
 
 ```rust
@@ -908,7 +907,7 @@ using Amount = Result<Volume>;
 ```]
 
 ---
-class: middle
+class: middle, slightly-smaller
 
 ```cpp
 Result<Moisture> MoistureSensor::read() { /* ... */ }
@@ -941,7 +940,7 @@ Amount WateringSystem::water() {
 ```
 
 ---
-class: middle
+class: middle, slightly-smaller
 
 ```cpp
 Result<Moisture> MoistureSensor::read() { /* ... */ }
@@ -974,7 +973,7 @@ Amount WateringSystem::water() {
 ```
 
 ---
-class: middle
+class: middle, slightly-smaller
 
 ```cpp
 Result<Moisture> MoistureSensor::read() { /* ... */ }
@@ -1007,7 +1006,7 @@ Amount WateringSystem::water() {
 ```
 
 ---
-class: middle
+class: middle, slightly-smaller
 
 ```cpp
 Result<Moisture> MoistureSensor::read() { /* ... */ }
@@ -1040,7 +1039,7 @@ Amount WateringSystem::water() {
 ```
 
 ---
-class: middle
+class: middle, slightly-smaller
 
 ```cpp
 Result<Moisture> MoistureSensor::read() { /* ... */ }
@@ -1073,7 +1072,7 @@ Amount WateringSystem::water() {
 ```
 
 ---
-class: middle
+class: middle, slightly-smaller
 
 ```cpp
 Result<Moisture> MoistureSensor::read() { /* ... */ }
@@ -1106,7 +1105,7 @@ Amount WateringSystem::water() {
 ```
 
 ---
-class: middle
+class: middle, slightly-smaller
 
 ```cpp
 Result<Moisture> MoistureSensor::read() { /* ... */ }
@@ -1395,17 +1394,14 @@ Result<Volume, Error> WateringSystem::water() {
   if (moisture.is_err()) {
     return moisture.err();
   }
-
   auto const temperature = thermo_sensor.read();
   if (temperature.is_err()) {
     return temperature.err();
   }
-
   auto const amount = calculate_amount(moisture.ok(), temperature.ok());
   if (amount.is_err()) {
     return amount.err();
   }
-
   auto const pump_result = pump.pump(amount.ok());
   if (pump_result.is_err()) {
     return pump_result.err();
@@ -1449,7 +1445,7 @@ class: center, middle
 # **`>>=`**
 
 ---
-class: middle
+class: middle, big
 
 ```cpp
 template<typename In, typename ErrType, typename Func>
@@ -1470,7 +1466,7 @@ auto operator>>(Result<In, ErrType> const & value, Func f) -> decltype(f()) {
 ```
 
 ---
-class: middle
+class: middle, big
 
 ```cpp
 template<typename In, typename ErrType, typename Func>
