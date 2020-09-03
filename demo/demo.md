@@ -32,6 +32,7 @@ repl:
 
     > half 4
     > half 5
+    > half 7
 
     > half ( half 8 )
     > half ( half ( half 18 ))
@@ -67,6 +68,6 @@ repl:
     > half 16 >>= half
     > half 16 >>= half >>= half
 
-    > half 20
-    > half 20 >>= half
-    > half 20 >>= half >>= half
+    > half 18
+    > half 18 >>= half
+    > half 18 >>= half >>= half

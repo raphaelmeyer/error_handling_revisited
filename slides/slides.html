@@ -102,6 +102,10 @@
       font-size: 75%;
     }
 
+    .custom-big {
+      font-size: 120%;
+    }
+
     .big {
       font-size: 125%;
     }
@@ -247,7 +251,7 @@ bool WateringSystem::water(Volume & amount) {
 ```
 
 ---
-class: middle
+class: middle, big
 
 ```cpp
 Moisture MoistureSensor::read() { /* ... */ }
@@ -266,7 +270,6 @@ Volume WateringSystem::water() {
   }
   catch(SensorError const & e) {
     throw WateringError{e.what()};
-
   }
   catch(PumpError const & e) {
     throw WateringError{e.what()};
@@ -523,20 +526,20 @@ waterPlant =
 ```
 
 ---
-class: middle
+class: middle, big
 
-.big[```haskell
+```haskell
 waterPlant :: Maybe Volume
 waterPlant =
   readMoisture >>= (\ moisture ->
     readTemperature >>= (\ temperature ->
       calculateAmount moisture temperature >>= (\ amount ->
         pump amount >> return amount )))
-```]
+```
 
-# .center[↕️]
+## .center[↕️]
 
-.big[```haskell
+```haskell
 waterPlant :: Maybe Volume
 waterPlant = do
   moisture <- readMoisture
@@ -544,7 +547,7 @@ waterPlant = do
   amount <- calculateAmount moisture temperature
   pump amount
   return amount
-```]
+```
 
 ---
 class: middle, big
@@ -694,8 +697,8 @@ class: middle, huge
 
 ```rust
 enum Option<T> {
-    None,
-    Some(T),
+  None,
+  Some(T),
 }
 ```
 
@@ -704,8 +707,8 @@ class: middle, huge
 
 ```rust
 enum Result<T, E> {
-   Ok(T),
-   Err(E),
+  Ok(T),
+  Err(E),
 }
 ```
 
@@ -1264,6 +1267,102 @@ class: middle
 
 ```cpp
 template<typename OkType, typename ErrType>
+class Result
+{
+public:
+  Result() = default;
+
+  template<typename T, typename std::enable_if<
+    std::is_convertible<T, std::variant<ErrType, OkType>>{}, int>::type = 0>
+  Result(T && value) : _value{std::forward<T>(value)} {}
+
+* ErrType const & err() const { return std::get<err_index>(_value); }
+* OkType const & ok() const { return std::get<ok_index>(_value); }
+
+  bool is_err() const { return _value.index() == err_index; }
+  bool is_ok() const { return _value.index() == ok_index; }
+
+private:
+  constexpr static std::size_t err_index = 0;
+  constexpr static std::size_t ok_index = 1;
+  std::variant<ErrType, OkType> _value;
+
+  Result(std::variant<ErrType, OkType> value) : _value{std::move(value)} {}
+
+  friend auto make_ok<OkType, ErrType>(OkType value);
+  friend auto make_err<OkType, ErrType>(ErrType value);
+};
+```
+
+---
+class: middle
+
+```cpp
+template<typename OkType, typename ErrType>
+class Result
+{
+public:
+  Result() = default;
+
+  template<typename T, typename std::enable_if<
+    std::is_convertible<T, std::variant<ErrType, OkType>>{}, int>::type = 0>
+  Result(T && value) : _value{std::forward<T>(value)} {}
+
+  ErrType const & err() const { return std::get<err_index>(_value); }
+  OkType const & ok() const { return std::get<ok_index>(_value); }
+
+* bool is_err() const { return _value.index() == err_index; }
+* bool is_ok() const { return _value.index() == ok_index; }
+
+private:
+  constexpr static std::size_t err_index = 0;
+  constexpr static std::size_t ok_index = 1;
+  std::variant<ErrType, OkType> _value;
+
+  Result(std::variant<ErrType, OkType> value) : _value{std::move(value)} {}
+
+  friend auto make_ok<OkType, ErrType>(OkType value);
+  friend auto make_err<OkType, ErrType>(ErrType value);
+};
+```
+
+---
+class: middle
+
+```cpp
+template<typename OkType, typename ErrType>
+class Result
+{
+public:
+  Result() = default;
+
+* template<typename T, typename std::enable_if<
+*   std::is_convertible<T, std::variant<ErrType, OkType>>{}, int>::type = 0>
+* Result(T && value) : _value{std::forward<T>(value)} {}
+
+  ErrType const & err() const { return std::get<err_index>(_value); }
+  OkType const & ok() const { return std::get<ok_index>(_value); }
+
+  bool is_err() const { return _value.index() == err_index; }
+  bool is_ok() const { return _value.index() == ok_index; }
+
+private:
+  constexpr static std::size_t err_index = 0;
+  constexpr static std::size_t ok_index = 1;
+  std::variant<ErrType, OkType> _value;
+
+  Result(std::variant<ErrType, OkType> value) : _value{std::move(value)} {}
+
+  friend auto make_ok<OkType, ErrType>(OkType value);
+  friend auto make_err<OkType, ErrType>(ErrType value);
+};
+```
+
+---
+class: middle
+
+```cpp
+template<typename OkType, typename ErrType>
 auto make_ok(OkType value) {
   using T = Result<OkType, ErrType>;
   return T{std::variant<ErrType, OkType>{
@@ -1524,7 +1623,7 @@ waterPlant =
 ```
 
 ---
-class: middle, big
+class: middle, custom-big
 
 ```cpp
 Result<Volume, Error> WateringSystem::water() {
@@ -1589,13 +1688,13 @@ class: center, middle
 ---
 class: center, middle
 
-## _Either_ look for a new job as a `haskell` programmer
+# _Either_ look for a new job as a `haskell` programmer
 
 --
 
-### or
+## or
 
-## _Maybe_ spend more time learning `C++` template meta programming.
+# _Maybe_ spend more time learning `C++` template meta programming.
 
 ---
 class: center, middle
